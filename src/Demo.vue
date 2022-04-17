@@ -58,7 +58,7 @@ export default {
 
 <style lang="scss">
 html, body, #app {
-  // height: 650px;
+   height: 100%;
   margin: 0;
 }
 </style>

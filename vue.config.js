@@ -56,6 +56,16 @@ module.exports = {
     loaderOptions: {
       sass: {
         // 配置全局样式变量
+      },
+      less: {
+        // 自定义主题样式
+        // modifyVars: {
+        //   'primary-color': '#41B883',
+        //   'link-color': '#41B883',
+        //   'border-radius-base': '2px'
+        // }
+        // 解决问题主要需要打开这个
+        javascriptEnabled: true
       }
     }
   },
@@ -64,7 +74,7 @@ module.exports = {
   // tweak internal webpack configuration.
   // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
   // 如果你不需要使用eslint，把lintOnSave设为false即可
-  lintOnSave: true,
+  lintOnSave: false,
   chainWebpack: config => {
     config.resolve.alias
       .set('views', resolve('src/views'))

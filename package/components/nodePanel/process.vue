@@ -1,17 +1,35 @@
 <template>
   <div>
-    <x-form ref="xForm" v-model="formData" :config="formConfig">
-      <template #executionListener>
-        <el-badge :value="executionListenerLength">
-          <el-button size="small" @click="dialogName = 'executionListenerDialog'">编辑</el-button>
-        </el-badge>
-      </template>
-      <template #signal>
-        <el-badge :value="signalLength">
-          <el-button size="small" @click="dialogName = 'signalDialog'">编辑</el-button>
-        </el-badge>
-      </template>
-    </x-form>
+
+    <a-form-model ref="form" :model="formData" :rules="rules" :label-col="{ span: 6,offset: 0 }" :wrapper-col="{ span: 16,offset: 1}" layout="horizontal">
+      <a-form-model-item label="流程分类" prop="category">
+        <a-select v-model="formData.category" placeholder="请选择流程分类" allow-clear :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in categoryOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="流程标识" prop="id">
+        <a-input v-model="formData.id" placeholder="请输入流程标识" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="流程名称" prop="name">
+        <a-input v-model="formData.name" placeholder="请输入流程名称"  allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="流程描述" prop="describe">
+        <a-textarea v-model="formData.describe" placeholder="请输入流程描述" :auto-size="{minRows: 4, maxRows: 4}"
+                    :style="{width: '100%'}" allow-clear />
+      </a-form-model-item>
+      <a-form-model-item label="执行监听器" prop="monitor">
+        <a-badge :count="executionListenerLength">
+          <a-button @click="dialogName = 'executionListenerDialog'">编辑</a-button>
+        </a-badge>
+      </a-form-model-item>
+      <a-form-model-item label="信号定义" prop="signal">
+        <a-badge :count="signalLength">
+          <a-button @click="dialogName = 'signalDialog'">编辑</a-button>
+        </a-badge>
+      </a-form-model-item>
+    </a-form-model>
+
     <executionListenerDialog
       v-if="dialogName === 'executionListenerDialog'"
       :element="element"
@@ -40,50 +58,46 @@ export default {
   data() {
     return {
       signalLength: 0,
-      formData: {}
+      executionListenerLength:0,
+      formData: {
+        category: undefined,
+        id: undefined,
+        name: undefined,
+        describe: undefined,
+        monitor: undefined,
+        signal: undefined,
+      },
+      rules: {
+        category: [{
+          required: true,
+          message: '请选择流程分类',
+          trigger: 'change'
+        }],
+        id: [{
+          required: true,
+          message: '请输入流程标识',
+          trigger: 'blur'
+        }],
+        name: [{
+          required: true,
+          message: '请输入流程名称',
+          trigger: 'blur'
+        }],
+        describe: [],
+      },
+      categoryOptions: [{
+        "label": "请假",
+        "value": 1
+      }, {
+        "label": "报销",
+        "value": 2
+      }],
     }
+
+
   },
   computed: {
-    formConfig() {
-      const _this = this
-      return {
-        inline: false,
-        item: [
-          {
-            xType: 'select',
-            name: 'processCategory',
-            label: '流程分类',
-            dic: { data: _this.categorys, label: 'name', value: 'id' }
-          },
-          {
-            xType: 'input',
-            name: 'id',
-            label: '流程标识key',
-            rules: [{ required: true, message: 'Id 不能为空' }]
-          },
-          {
-            xType: 'input',
-            name: 'name',
-            label: '流程名称'
-          },
-          {
-            xType: 'input',
-            name: 'documentation',
-            label: '节点描述'
-          },
-          {
-            xType: 'slot',
-            name: 'executionListener',
-            label: '执行监听器'
-          },
-          {
-            xType: 'slot',
-            name: 'signal',
-            label: '信号定义'
-          }
-        ]
-      }
-    }
+
   },
   watch: {
     'formData.processCategory': function(val) {
@@ -93,6 +107,7 @@ export default {
   },
   created() {
     this.formData = commonParse(this.element)
+    console.log(this.formData)
   },
   methods: {
     computedSignalLength() {
@@ -103,7 +118,15 @@ export default {
         this.computedSignalLength()
       }
       this.dialogName = ''
-    }
+    },
+    submitForm() {
+      this.$refs['form'].validate(valid => {
+        if (!valid) return
+      })
+    },
+    resetForm() {
+      this.$refs['form'].resetFields()
+    },
   }
 }
 </script>
