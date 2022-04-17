@@ -14,16 +14,16 @@
       <a-form-model-item label="流程名称" prop="name">
         <a-input v-model="formData.name" placeholder="请输入流程名称"  allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="流程描述" prop="describe">
-        <a-textarea v-model="formData.describe" placeholder="请输入流程描述" :auto-size="{minRows: 4, maxRows: 4}"
+      <a-form-model-item label="流程描述" prop="documentation">
+        <a-textarea v-model="formData.documentation" placeholder="请输入流程描述" :auto-size="{minRows: 4, maxRows: 4}"
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="执行监听器" prop="monitor">
+      <a-form-model-item label="执行监听器">
         <a-badge :count="executionListenerLength">
           <a-button @click="dialogName = 'executionListenerDialog'">编辑</a-button>
         </a-badge>
       </a-form-model-item>
-      <a-form-model-item label="信号定义" prop="signal">
+      <a-form-model-item label="信号定义">
         <a-badge :count="signalLength">
           <a-button @click="dialogName = 'signalDialog'">编辑</a-button>
         </a-badge>
@@ -63,9 +63,7 @@ export default {
         category: undefined,
         id: undefined,
         name: undefined,
-        describe: undefined,
-        monitor: undefined,
-        signal: undefined,
+        documentation: undefined,
       },
       rules: {
         category: [{
@@ -83,7 +81,7 @@ export default {
           message: '请输入流程名称',
           trigger: 'blur'
         }],
-        describe: [],
+        documentation: [],
       },
       categoryOptions: [{
         "label": "请假",
@@ -118,15 +116,7 @@ export default {
         this.computedSignalLength()
       }
       this.dialogName = ''
-    },
-    submitForm() {
-      this.$refs['form'].validate(valid => {
-        if (!valid) return
-      })
-    },
-    resetForm() {
-      this.$refs['form'].resetFields()
-    },
+    }
   }
 }
 </script>

@@ -1,50 +1,50 @@
 <template>
-  <div v-loading="isView" class="flow-containers" style="height: 100%" :class="{ 'view-mode': isView }">
+  <div class="flow-containers" style="height: 100%" :class="{ 'view-mode': isView }">
     <a-layout style="height: 100%">
       <a-layout-header theme="light" style="border-bottom: 1px solid rgb(218 218 218);height: auto;background-color:#fff;">
         <div style="display: flex; padding: 5px 0px; justify-content: space-between;">
           <a-space>
             <a-tooltip effect="dark" title="加载xml" placement="bottom">
-              <a-button size="mini" icon="el-icon-folder-opened" >
+              <a-button icon="el-icon-folder-opened" >
                 <i class="iconfont icon-upload"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="新建" placement="bottom">
-              <a-button size="mini" icon="el-icon-circle-plus" @click="newDiagram">
+              <a-button icon="el-icon-circle-plus" @click="newDiagram">
                 <i class="iconfont icon-add"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="自适应屏幕" placement="bottom">
-              <a-button size="mini" icon="el-icon-rank" @click="fitViewport" >
+              <a-button icon="el-icon-rank" @click="fitViewport" >
                 <i class="iconfont icon-browse"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="放大" placement="bottom">
-              <a-button size="mini" icon="el-icon-zoom-in" @click="zoomViewport(true)" >
+              <a-button icon="el-icon-zoom-in" @click="zoomViewport(true)" >
                 <i class="iconfont icon-zoom-out"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="缩小" placement="bottom">
-              <a-button size="mini" icon="el-icon-zoom-out" @click="zoomViewport(false)" >
+              <a-button icon="el-icon-zoom-out" @click="zoomViewport(false)" >
                 <i class="iconfont icon-zoom-in"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="后退" placement="bottom">
-              <a-button size="mini" icon="el-icon-back" @click="modeler.get('commandStack').undo()" >
+              <a-button icon="el-icon-back" @click="modeler.get('commandStack').undo()" >
                 <i class="iconfont icon-left"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip title="前进" placement="bottom">
-              <a-button size="mini" @click="modeler.get('commandStack').redo()">
+              <a-button @click="modeler.get('commandStack').redo()">
                 <i class="iconfont icon-right"></i>
               </a-button>
             </a-tooltip>
 
           </a-space>
           <a-space>
-            <a-button size="mini" icon="el-icon-download" @click="saveXML(true)">下载xml</a-button>
-            <a-button size="mini" icon="el-icon-picture" @click="saveImg('svg', true)">下载svg</a-button>
-            <a-button size="mini" type="primary" @click="save">保存模型</a-button>
+            <a-button icon="el-icon-download" @click="saveXML(true)">下载xml</a-button>
+            <a-button icon="el-icon-picture" @click="saveImg('svg', true)">下载svg</a-button>
+            <a-button type="primary" @click="save">保存模型</a-button>
           </a-space>
         </div>
       </a-layout-header>
@@ -353,18 +353,6 @@ html,body,#app{
   height:100%
 }
 
-
-.view-mode {
-  .el-header, .el-aside, .djs-palette, .bjs-powered-by {
-    display: none;
-  }
-  .el-loading-mask {
-    background-color: initial;
-  }
-  .el-loading-spinner {
-    display: none;
-  }
-}
 .flow-containers {
   // background-color: #ffffff;
   width: 100%;

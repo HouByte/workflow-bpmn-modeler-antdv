@@ -207,6 +207,8 @@ export default {
 
 export const NodeName = {
   'bpmn:Process': '流程',
+  'bpmn:SubProcess': '子流程',
+  'bpmn:CallActivity': '调用活动',
   'bpmn:StartEvent': '开始事件',
   'bpmn:IntermediateThrowEvent': '中间事件',
   'bpmn:Task': '任务',

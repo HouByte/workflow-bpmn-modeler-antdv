@@ -1,5 +1,5 @@
 <template>
-  <div ref="propertyPanel" class="property-panel">
+  <div ref="propertyPanel" class="property-panel" v-show="getComponent">
     <div v-if="nodeName" class="node-name">{{ nodeName }}</div>
     <component
       :is="getComponent"

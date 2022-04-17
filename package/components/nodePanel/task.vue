@@ -1,22 +1,148 @@
 <template>
   <div>
-    <x-form ref="xForm" v-model="formData" :config="formConfig">
-      <template #executionListener>
-        <el-badge :value="executionListenerLength">
-          <el-button size="small" @click="dialogName = 'executionListenerDialog'">编辑</el-button>
-        </el-badge>
-      </template>
-      <template #taskListener>
-        <el-badge :value="taskListenerLength">
-          <el-button size="small" @click="dialogName = 'taskListenerDialog'">编辑</el-button>
-        </el-badge>
-      </template>
-      <template #multiInstance>
-        <el-badge :is-dot="hasMultiInstance">
-          <el-button size="small" @click="dialogName = 'multiInstanceDialog'">编辑</el-button>
-        </el-badge>
-      </template>
-    </x-form>
+    <a-form-model ref="form" :model="formData" :rules="rules" :label-col="{ span: 8,offset: 0 }" :wrapper-col="{ span: 14,offset: 0 }" layout="horizontal">
+      <a-form-model-item label="节点ID" prop="id">
+        <a-input v-model="formData.id" placeholder="请输入节点ID" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="节点名称" prop="name">
+        <a-input v-model="formData.name" placeholder="请输入节点名称" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="节点描述" prop="documentation">
+        <a-textarea v-model="formData.documentation" placeholder="请输入节点描述" :auto-size="{minRows: 1, maxRows: 2}"
+                    :style="{width: '100%'}" allow-clear />
+      </a-form-model-item>
+      <a-form-model-item label="执行监听器" prop="executionListener">
+        <a-badge :count="executionListenerLength">
+          <a-button type="default" @click="dialogName = 'executionListenerDialog'"> 编辑 </a-button>
+        </a-badge>
+      </a-form-model-item>
+      <a-form-model-item label="任务监听器" prop="taskListener" v-show="!!showConfig.taskListener">
+        <a-badge :count="taskListenerLength">
+          <a-button type="default" @click="dialogName = 'taskListenerDialog'"> 编辑 </a-button>
+        </a-badge>
+      </a-form-model-item>
+      <a-form-model-item label="人员类型" prop="userType"  v-show="!!showConfig.userType">
+        <a-select v-model="formData.userType" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in userTypeOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="指定方式" prop="dataType"  v-show="!!showConfig.userType">
+        <a-radio-group :options="modeOptions" v-model:value="formData.dataType"/>
+<!--        <a-radio-group v-model="formData.mode">-->
+<!--          <a-radio v-for="(item, index) in modeOptions" :key="index" :value="item.value"-->
+<!--                   :disabled="item.disabled">{{item.label}}</a-radio>-->
+<!--        </a-radio-group>-->
+      </a-form-model-item>
+      <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='fixed' && formData.userType === 'assignee'">
+        <a-select v-model="formData.assignee" placeholder="请委派指定人员" allow-clear :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in assigneeOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='dynamic' && formData.userType === 'assignee'">
+        <a-auto-complete v-model="formData.assignee" placeholder="请委派指定人员表达式" :data-source="assigneeDataSource"
+                         filter-option allow-clear />
+      </a-form-model-item>
+      <a-form-model-item label="候选人员" prop="candidateUsers" v-show="!!showConfig.assignee && formData.userType === 'candidateUsers'">
+        <a-select v-model="formData.candidateUsers" placeholder="请选择候选人员" mode='multiple' allow-clear
+                  :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in candidateUsersOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="候选组" prop="candidateGroups" v-show="!!showConfig.candidateGroups && formData.userType === 'candidateGroups'">
+        <a-select v-model="formData.candidateGroups" placeholder="请选择候选组" allow-clear :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in candidateGroupsOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="多实例" prop="multiInstance">
+        <a-button type="default" @click="dialogName = 'multiInstanceDialog'"> 编辑 </a-button>
+      </a-form-model-item>
+      <a-form-model-item label="异步" prop="async">
+        <a-switch v-model="formData.async" />
+      </a-form-model-item>
+      <a-form-model-item label="优先级" prop="priority"  v-show="!!showConfig.priority">
+        <a-input v-model="formData.priority" placeholder="请输入优先级" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey">
+        <a-input v-model="formData.formKey" placeholder="请输入表单标识" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="跳过条件" prop="skipExpression" v-show="!!showConfig.skipExpression">
+        <a-input v-model="formData.skipExpression" placeholder="请输入跳过条件表达式" :style="{width: '100%'}" allow-clear>
+        </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="是否为补偿" prop="isForCompensation" v-show="!!showConfig.isForCompensation">
+        <a-switch v-model="formData.isForCompensation" />
+      </a-form-model-item>
+      <a-form-model-item label="服务任务可触发" prop="triggerable" v-show="!!showConfig.triggerable">
+        <a-switch v-model="formData.triggerable" />
+      </a-form-model-item>
+      <a-form-model-item label="自动存储变量" prop="autoStoreVariables" v-show="!!showConfig.autoStoreVariables">
+        <a-switch v-model="formData.autoStoreVariables" />
+      </a-form-model-item>
+      <a-form-model-item label="排除" prop="exclude" v-show="!!showConfig.exclude">
+        <a-switch v-model="formData.exclude" />
+      </a-form-model-item>
+      <a-form-model-item label="输入变量" prop="ruleVariablesInput"  v-show="!!showConfig.ruleVariablesInput">
+        <a-input v-model="formData.ruleVariablesInput" placeholder="请输入变量" :style="{width: '100%'}" allow-clear>
+        </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="规则" prop="rules" v-show="!!showConfig.rules">
+        <a-input v-model="formData.rules" placeholder="请输入规则" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+<!--      <a-row type="flex" justify="end" align="top" v-show="!!showConfig.asyncBefore">-->
+<!--        <a-col :span="10">-->
+<!--          <a-form-model-item label="异步前" prop="asyncBefore">-->
+<!--            <a-switch v-model="formData.asyncBefore" />-->
+<!--          </a-form-model-item>-->
+<!--        </a-col>-->
+<!--        <a-col :span="9">-->
+<!--          <a-form-model-item label="异步后" prop="asyncAfter">-->
+<!--            <a-switch v-model="formData.asyncAfter" />-->
+<!--          </a-form-model-item>-->
+<!--        </a-col>-->
+<!--        <a-col :span="5">-->
+<!--          <a-form-model-item label="排除" prop="exclusive" v-show="formData.asyncBefore || formData.asyncAfter">-->
+<!--            <a-switch v-model="formData.exclusive" />-->
+<!--          </a-form-model-item>-->
+<!--        </a-col>-->
+<!--      </a-row>-->
+<!--      <a-form-model-item label="脚本格式" prop="scriptFormat: true," v-show="!!showConfig.scriptFormat">-->
+<!--        <a-input v-model="formData.scriptFormat" placeholder="请输入脚本格式" :style="{width: '100%'}"-->
+<!--                 allow-clear></a-input>-->
+<!--      </a-form-model-item>-->
+<!--      <a-form-model-item label="脚本类型" prop="scriptType" v-show="!!showConfig.scriptType">-->
+<!--        <a-select v-model="formData.scriptType" placeholder="请选择脚本类型" allow-clear :style="{width: '100%'}">-->
+<!--          <a-select-option v-for="(item, index) in scriptTypeOptions" :key="index" :value="item.value"-->
+<!--                           :disabled="item.disabled">{{item.label}}</a-select-option>-->
+<!--        </a-select>-->
+<!--      </a-form-model-item>-->
+<!--      <a-form-model-item label="资源地址" prop="resource" v-show="!!showConfig.resource && formData.scriptType === 'outside'">-->
+<!--        <a-input v-model="formData.resource" placeholder="资源地址" :style="{width: '100%'}" allow-clear></a-input>-->
+<!--      </a-form-model-item>-->
+<!--      <a-form-model-item label="脚本" prop="script" v-show="!!showConfig.script  && formData.scriptType === 'inside'">-->
+<!--        <a-textarea v-model="formData.script" placeholder="填写脚本" :auto-size="{minRows: 4, maxRows: 4}"-->
+<!--                    :style="{width: '100%'}" allow-clear />-->
+<!--      </a-form-model-item>-->
+      <a-form-model-item label="结果变量" prop="resultVariable" v-show="!!showConfig.resultVariable">
+        <a-input v-model="formData.resultVariable" placeholder="请输入结果变量" :style="{width: '100%'}" allow-clear>
+        </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="类" prop="class" v-show="!!showConfig.class">
+        <a-input v-model="formData.class" placeholder="请输入类" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="过期时间" prop="dueDate" v-show="!!showConfig.dueDate">
+        <a-auto-complete v-model="formData.dueDate" placeholder="过期时间表达式" :data-source="dueDateDataSource"
+                         filter-option allow-clear />
+      </a-form-model-item>
+      <a-form-model-item label="观察时间" prop="followUpDate" v-show="!!showConfig.followUpDate">
+        <a-auto-complete v-model="formData.followUpDate" placeholder="观察时间表达式" :data-source="followUpDateDataSource"
+                         filter-option allow-clear />
+      </a-form-model-item>
+    </a-form-model>
+
     <executionListenerDialog
       v-if="dialogName === 'executionListenerDialog'"
       :element="element"
@@ -72,175 +198,132 @@ export default {
       executionListenerLength: 0,
       taskListenerLength: 0,
       hasMultiInstance: false,
-      formData: {}
+      formData: {
+        id: undefined,
+        name: undefined,
+        documentation: undefined,
+        executionListener: undefined,
+        taskListener: undefined,
+        userType: undefined,
+        dataType: "fixed",
+        assignee: undefined,
+        candidateUsers: [],
+        candidateGroups: undefined,
+        multiInstance: undefined,
+        async: false,
+        priority: undefined,
+        formKey: undefined,
+        skipExpression: undefined,
+        isForCompensation: false,
+        triggerable: false,
+        autoStoreVariables: false,
+        exclude: false,
+        asyncBefore: false,
+        asyncAfter: false,
+        exclusive: false,
+        scriptFormat: undefined,
+        scriptType: undefined,
+        resource: undefined,
+        script: undefined,
+        ruleVariablesInput: undefined,
+        rules: undefined,
+        resultVariable: undefined,
+        dueDate: '${dueDate}',
+        followUpDate: '${followUpDate}',
+        class: undefined,
+      },
+      rules: {
+        id: [{
+          required: true,
+          message: '请输入节点ID',
+          trigger: 'blur'
+        }],
+        name: [{
+          required: true,
+          message: '请输入节点名称',
+          trigger: 'blur'
+        }],
+        documentation: [],
+        userType: [{
+          required: true,
+          message: '请选择人员类型',
+          trigger: 'change'
+        }],
+        mode: [{
+          required: true,
+          message: '指定方式不能为空',
+          trigger: 'change'
+        }],
+        assignee: [{
+          required: true,
+          message: '请委派指定人员',
+          trigger: 'change'
+        }],
+        candidateUsers: [{
+          required: true,
+          type: 'array',
+          message: '请至少选择一个候选人员',
+          trigger: 'change'
+        }],
+        candidateGroups: [{
+          required: true,
+          message: '请选择候选组',
+          trigger: 'change'
+        }]
+      },
+      userTypeOptions: [{
+        "label": "指定人员",
+        "value": "assignee"
+      }, {
+        "label": "候选人员",
+        "value": "candidateUsers"
+      }, {
+        "label": "候选组",
+        "value": "candidateGroups"
+      }],
+      modeOptions: [{
+        "label": "固定",
+        "value": "fixed"
+      }, {
+        "label": "动态",
+        "value": "dynamic"
+      }],
+      assigneeOptions: [{
+        "label": "流程发起人",
+        "value": "${INITIATOR}"
+      }, {
+        "label": "张三",
+        "value": "zhangsan"
+      }],
+      candidateUsersOptions: [{
+        "label": "李四",
+        "value": "list"
+      }, {
+        "label": "张三",
+        "value": "zhangsan"
+      }],
+      candidateGroupsOptions: [{
+        "label": "管理员",
+        "value": "admin"
+      }, {
+        "label": "人事",
+        "value": "hr"
+      }],
+      assigneeDataSource: ["#{approval}","${approverId}","${INITIATOR}"],
+      dueDateDataSource: ["${dueDate}"],
+      followUpDateDataSource: ["${followUpDate}"],
+      scriptTypeOptions: [{
+        "label": "外部资源",
+        "value": "outside"
+      }, {
+        "label": "内联脚本",
+        "value": "inside"
+      }],
+
     }
   },
   computed: {
-    formConfig() {
-      const _this = this
-      return {
-        inline: false,
-        item: [
-          {
-            xType: 'input',
-            name: 'id',
-            label: '节点 id',
-            rules: [{ required: true, message: 'Id 不能为空' }]
-          },
-          {
-            xType: 'input',
-            name: 'name',
-            label: '节点名称'
-          },
-          {
-            xType: 'input',
-            name: 'documentation',
-            label: '节点描述'
-          },
-          {
-            xType: 'slot',
-            name: 'executionListener',
-            label: '执行监听器'
-          },
-          {
-            xType: 'slot',
-            name: 'taskListener',
-            label: '任务监听器',
-            show: !!_this.showConfig.taskListener
-          },
-          {
-            xType: 'select',
-            name: 'userType',
-            label: '人员类型',
-            dic: _this.userTypeOption,
-            show: !!_this.showConfig.userType
-          },
-          {
-            xType: 'select',
-            name: 'assignee',
-            label: '指定人员',
-            allowCreate: true,
-            filterable: true,
-            dic: { data: _this.users, label: 'name', value: 'id' },
-            show: !!_this.showConfig.assignee && _this.formData.userType === 'assignee'
-          },
-          {
-            xType: 'select',
-            name: 'candidateUsers',
-            label: '候选人员',
-            multiple: true,
-            allowCreate: true,
-            filterable: true,
-            dic: { data: _this.users, label: 'name', value: 'id' },
-            show: !!_this.showConfig.candidateUsers && _this.formData.userType === 'candidateUsers'
-          },
-          {
-            xType: 'select',
-            name: 'candidateGroups',
-            label: '候选组',
-            multiple: true,
-            allowCreate: true,
-            filterable: true,
-            dic: { data: _this.groups, label: 'name', value: 'id' },
-            show: !!_this.showConfig.candidateGroups && _this.formData.userType === 'candidateGroups'
-          },
-          {
-            xType: 'slot',
-            name: 'multiInstance',
-            label: '多实例'
-          },
-          {
-            xType: 'switch',
-            name: 'async',
-            label: '异步',
-            activeText: '是',
-            inactiveText: '否',
-            show: !!_this.showConfig.async
-          },
-          {
-            xType: 'input',
-            name: 'priority',
-            label: '优先级',
-            show: !!_this.showConfig.priority
-          },
-          {
-            xType: 'input',
-            name: 'formKey',
-            label: '表单标识key',
-            show: !!_this.showConfig.formKey
-          },
-          {
-            xType: 'input',
-            name: 'skipExpression',
-            label: '跳过表达式',
-            show: !!_this.showConfig.skipExpression
-          },
-          {
-            xType: 'switch',
-            name: 'isForCompensation',
-            label: '是否为补偿',
-            activeText: '是',
-            inactiveText: '否',
-            show: !!_this.showConfig.isForCompensation
-          },
-          {
-            xType: 'switch',
-            name: 'triggerable',
-            label: '服务任务可触发',
-            activeText: '是',
-            inactiveText: '否',
-            show: !!_this.showConfig.triggerable
-          },
-          {
-            xType: 'switch',
-            name: 'autoStoreVariables',
-            label: '自动存储变量',
-            activeText: '是',
-            inactiveText: '否',
-            show: !!_this.showConfig.autoStoreVariables
-          },
-          {
-            xType: 'input',
-            name: 'ruleVariablesInput',
-            label: '输入变量',
-            show: !!_this.showConfig.ruleVariablesInput
-          },
-          {
-            xType: 'input',
-            name: 'rules',
-            label: '规则',
-            show: !!_this.showConfig.rules
-          },
-          {
-            xType: 'input',
-            name: 'resultVariable',
-            label: '结果变量',
-            show: !!_this.showConfig.resultVariable
-          },
-          {
-            xType: 'switch',
-            name: 'exclude',
-            label: '排除',
-            activeText: '是',
-            inactiveText: '否',
-            show: !!_this.showConfig.exclude
-          },
-          {
-            xType: 'input',
-            name: 'class',
-            label: '类',
-            show: !!_this.showConfig.class
-          },
-          {
-            xType: 'datePicker',
-            type: 'datetime',
-            name: 'dueDate',
-            label: '到期时间',
-            show: !!_this.showConfig.dueDate
-          }
-        ]
-      }
-    }
+
   },
   watch: {
     'formData.userType': function(val, oldVal) {
@@ -367,7 +450,7 @@ export default {
         this.computedHasMultiInstance()
       }
       this.dialogName = ''
-    }
+    },
   }
 }
 </script>

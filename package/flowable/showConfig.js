@@ -4,6 +4,10 @@ export default {
     initiator: true,
     formKey: true
   },
+  'bpmn:SequenceFlow': {
+    skipExpression: true,
+    conditionExpression: true
+  },
   'bpmn:UserTask': {
     userType: true,
     assignee: true,
@@ -14,6 +18,7 @@ export default {
     formKey: true,
     skipExpression: true,
     dueDate: true,
+    followUpDate:true,
     taskListener: true
   },
   'bpmn:ServiceTask': {
@@ -26,6 +31,14 @@ export default {
   'bpmn:ScriptTask': {
     async: true,
     isForCompensation: true,
+    // asyncBefore: true,
+    // asyncAfter: true,
+    // exclusive: true,
+    // scriptFormat: true,
+    // scriptType: true,
+    // script: true,
+    // resource: true,
+    resultVariable: true,
     autoStoreVariables: true
   },
   'bpmn:ManualTask': {
