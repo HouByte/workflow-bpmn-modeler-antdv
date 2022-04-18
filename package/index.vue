@@ -42,8 +42,10 @@
 
           </a-space>
           <a-space>
-            <a-button icon="el-icon-download" @click="saveXML(true)">下载xml</a-button>
-            <a-button icon="el-icon-picture" @click="saveImg('svg', true)">下载svg</a-button>
+            <slot name="action"></slot>
+            <a-button @click="saveXML(true)">查看xml</a-button>
+            <a-button @click="saveXML(true)">下载xml</a-button>
+            <a-button @click="saveImg('svg', true)">下载svg</a-button>
             <a-button type="primary" @click="save">保存模型</a-button>
           </a-space>
         </div>
@@ -70,11 +72,10 @@ import BpmData from './BpmData'
 import getInitStr from './flowable/init'
 // 引入flowable的节点文件
 import flowableModdle from './flowable/flowable.json'
-import { MessageOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'WorkflowBpmnModeler',
   components: {
-    panel,MessageOutlined
+    panel
   },
   props: {
     xml: {

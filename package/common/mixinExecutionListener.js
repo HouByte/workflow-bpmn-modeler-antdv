@@ -1,11 +1,13 @@
 
-import executionListenerDialog from '../components/nodePanel/property/executionListener'
+import executionListener from '../components/nodePanel/property/executionListener'
+import { message } from 'ant-design-vue'
 export default {
   components: {
-    executionListenerDialog
+    executionListener
   },
   data() {
     return {
+      executionListenerVisible:false,
       executionListenerLength: 0,
       dialogName: null
     }
@@ -14,11 +16,20 @@ export default {
     computedExecutionListenerLength() {
       this.executionListenerLength = this.element.businessObject.extensionElements?.values?.length ?? 0
     },
-    finishExecutionListener() {
-      if (this.dialogName === 'executionListenerDialog') {
+    getExecutionListenerLength() {
+      return this.element.businessObject.extensionElements?.values?.length ?? 0
+    },
+    handleExecutionListener(){
+      var flag = this.$refs.executionListener.closeDialog();
+      if (flag){
         this.computedExecutionListenerLength()
+        this.executionListenerVisible = false;
+      } else {
+        message.error("请补充信息")
       }
-      this.dialogName = ''
+    },
+    handleShowExecutionListener() {
+      this.executionListenerVisible = true;
     }
   }
 }

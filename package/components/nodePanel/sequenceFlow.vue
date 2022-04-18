@@ -12,8 +12,8 @@
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
       <a-form-model-item label="执行监听器">
-        <a-badge :count="executionListenerLength">
-          <a-button @click="dialogName = 'executionListenerDialog'">编辑</a-button>
+        <a-badge :count="getExecutionListenerLength">
+          <a-button @click="handleShowExecutionListener">编辑</a-button>
         </a-badge>
       </a-form-model-item>
       <a-form-model-item label="跳转条件" prop="skipExpression" v-show="!!showConfig.skipExpression">
@@ -26,12 +26,16 @@
       </a-form-model-item>
 
     </a-form-model>
-    <executionListenerDialog
-      v-if="dialogName === 'executionListenerDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishExecutionListener"
-    />
+    <a-modal v-model:visible="executionListenerVisible" title="执行监听器" width="800px" :maskClosable="false" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="handleExecutionListener">关闭</a-button>
+      </template>
+      <executionListener
+          ref="executionListener"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
   </div>
 </template>
 
@@ -43,7 +47,6 @@ export default {
   mixins: [mixinPanel, mixinExecutionListener],
   data() {
     return {
-      executionListenerLength:0,
       formData: {
         category: undefined,
         id: undefined,

@@ -1,19 +1,33 @@
 <template>
   <div>
-    <el-dialog
-      title="信号定义"
-      :visible.sync="dialogVisible"
-      width="700px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-      @closed="$emit('close')"
-    >
-      <x-form ref="xForm" v-model="formData" :config="formConfig" />
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="medium" @click="closeDialog">确 定</el-button>
-      </span>
-    </el-dialog>
+    <a-button type="primary" class="editable-add-btn" @click="handleEditableAdd" style="margin-bottom: 8px">新增</a-button>
+
+    <a-table :rowKey='(record,index)=>{return index}' :dataSource="formData.signal" :columns="columns" >
+      <template slot="scope" slot-scope="text, record">
+        <a-select :default-value="text" v-model="record.scope" style="width: 120px">
+          <a-select-option value="start">
+            全局
+          </a-select-option>
+          <a-select-option value="end">
+            流程实例
+          </a-select-option>
+        </a-select>
+      </template>
+      <template slot="id" slot-scope="text, record">
+        <a-input  v-model:value="record.id" placeholder="请输入id" />
+      </template>
+      <template slot="name" slot-scope="text, record">
+        <a-input  v-model:value="record.name" placeholder="请输入名称" />
+      </template>
+      <template slot="action" slot-scope="text, record,index">
+        <a-popconfirm
+            title="是否删除?"
+            @confirm="() => onDelete(index)"
+        >
+          <a href="javascript:;">删除</a>
+        </a-popconfirm>
+      </template>
+    </a-table>
   </div>
 </template>
 
@@ -26,68 +40,58 @@ export default {
       dialogVisible: true,
       formData: {
         signal: []
-      }
+      },
+      columns: [
+        {
+          title: '作用域',
+          dataIndex: 'scope',
+          key: 'scope',
+          scopedSlots: {
+            customRender: 'scope',
+          },
+        },
+        {
+          title: 'id',
+          dataIndex: 'id',
+          key: 'id',
+          scopedSlots: {
+            customRender: 'id',
+          },
+        },
+        {
+          title: '名称',
+          dataIndex: 'name',
+          key: 'name',
+          scopedSlots: {
+            customRender: 'name',
+          },
+        },
+        {
+          title: '操作',
+          dataIndex: 'action',
+          key: 'action',
+          scopedSlots: {
+            customRender: 'action',
+          },
+        },
+      ],
     }
   },
   computed: {
-    formConfig() {
-    //   const _this = this
-      return {
-        inline: false,
-        item: [
-          {
-            xType: 'tabs',
-            tabs: [
-              {
-                label: '信号定义',
-                name: 'signal',
-                column: [
-                  {
-                    label: 'scope',
-                    name: 'scope',
-                    width: 180,
-                    rules: [{ required: true, message: '请选择', trigger: ['blur', 'change'] }],
-                    xType: 'select',
-                    dic: [
-                      { label: '全局', value: 'start' },
-                      { label: '流程实例', value: 'end' }
-                    ]
-                  },
-                  {
-                    label: 'id',
-                    name: 'id',
-                    width: 200,
-                    rules: [{ required: true, message: '请输入', trigger: ['blur', 'change'] }],
-                    xType: 'input'
-                  },
-                  {
-                    label: '名称',
-                    name: 'name',
-                    xType: 'input',
-                    rules: [{ required: true, message: '请输入', trigger: ['blur', 'change'] }]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
   },
   mounted() {
-    // this.formData.signal = this.element.businessObject.extensionElements?.values.map(item => {
-    //   let type
-    //   if ('class' in item.$attrs) type = 'class'
-    //   if ('expression' in item.$attrs) type = 'expression'
-    //   if ('delegateExpression' in item.$attrs) type = 'delegateExpression'
-    //   return {
-    //     event: item.$attrs.event,
-    //     type: type,
-    //     className: item.$attrs[type]
-    //   }
-    // }) ?? []
   },
   methods: {
+    onDelete(index){
+      this.formData.signal.splice(index, 1);
+    },
+    handleEditableAdd(){
+      this.formData.signal.push({
+        scope: 'start',
+        id: '',
+        name: ""
+      })
+    },
     updateElement() {
       if (this.formData.signal?.length) {
         let extensionElements = this.element.businessObject.get('extensionElements')
@@ -107,18 +111,32 @@ export default {
         }
       }
     },
-    closeDialog() {
-      this.$refs.xForm.validate().then(() => {
+    getSsignal() {
+      if (this.formData.signal === undefined || this.formData.signal.length === 0){
+        return true;
+      }
+      var flag = true
+      this.formData.signal.forEach(item =>{
+        if (item.name === "" || item.id === ""){
+          flag = false;
+        }
+      })
+      if (flag){
         this.updateElement()
-        this.dialogVisible = false
-      }).catch(e => console.error(e))
+      }
+      return flag;
     }
   }
 }
 </script>
 
-<style>
-.flow-containers  .el-badge__content.is-fixed {
-    top: 18px;
+<style lang="less" scoped>
+
+input {
+  &::placeholder {
+    color: #e15d5d;
+  }
 }
+
+
 </style>

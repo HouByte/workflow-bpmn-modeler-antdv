@@ -19,46 +19,60 @@
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
       <a-form-model-item label="执行监听器">
-        <a-badge :count="executionListenerLength">
-          <a-button @click="dialogName = 'executionListenerDialog'">编辑</a-button>
+        <a-badge :count="getExecutionListenerLength">
+          <a-button @click="handleShowExecutionListener">编辑</a-button>
         </a-badge>
       </a-form-model-item>
       <a-form-model-item label="信号定义">
         <a-badge :count="signalLength">
-          <a-button @click="dialogName = 'signalDialog'">编辑</a-button>
+          <a-button @click="signalVisible = true ">编辑</a-button>
         </a-badge>
       </a-form-model-item>
     </a-form-model>
 
-    <executionListenerDialog
-      v-if="dialogName === 'executionListenerDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishExecutionListener"
-    />
-    <signalDialog
-      v-if="dialogName === 'signalDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishExecutionListener"
-    />
+
+
+    <a-modal v-model:visible="executionListenerVisible" title="执行监听器" width="800px" :maskClosable="false" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="handleExecutionListener">关闭</a-button>
+      </template>
+      <executionListener
+          ref="executionListener"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
+
+
+    <a-modal v-model:visible="signalVisible" title="信号定义" width="700px">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="finishSignal">关闭</a-button>
+      </template>
+      <signal
+          ref="signal"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
+
   </div>
 </template>
 
 <script>
 import mixinPanel from '../../common/mixinPanel'
 import mixinExecutionListener from '../../common/mixinExecutionListener'
-import signalDialog from './property/signal'
+import signal from './property/signal'
 import { commonParse } from '../../common/parseElement'
+import { message } from 'ant-design-vue'
 export default {
   components: {
-    signalDialog
+    signal
   },
   mixins: [mixinPanel, mixinExecutionListener],
   data() {
     return {
+      signalVisible:false,
       signalLength: 0,
-      executionListenerLength:0,
       formData: {
         category: undefined,
         id: undefined,
@@ -112,10 +126,12 @@ export default {
       this.signalLength = this.element.businessObject.extensionElements?.values?.length ?? 0
     },
     finishSignal() {
-      if (this.dialogName === 'signalDialog') {
-        this.computedSignalLength()
+      var flag = this.$refs.signal.getSsignal();
+      if (flag) {
+        this.signalVisible = false;
+      } else {
+        message.error("信息填写不完善")
       }
-      this.dialogName = ''
     }
   }
 }

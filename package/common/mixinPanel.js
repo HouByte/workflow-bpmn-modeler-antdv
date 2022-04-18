@@ -1,6 +1,8 @@
 import xcrud from 'xcrud'
 import golbalConfig from 'xcrud/package/common/config'
 import showConfig from '../flowable/showConfig'
+import { message } from 'ant-design-vue'
+
 golbalConfig.set({
   input: {
     // size: 'mini'
@@ -21,6 +23,19 @@ golbalConfig.set({
 export default {
   components: { xForm: xcrud.xForm },
   props: {
+    associateFormConfig:{
+      type:Object,
+      default:() => {
+        return {
+          isView: true,
+          isCreate: true,
+        }
+      }
+    },
+    associateFormDataOptions: {
+      type: Array,
+      default:undefined
+    },
     modeler: {
       type: Object,
       required: true

@@ -8,7 +8,11 @@
       :categorys="categorys"
       :is-view="false"
       @save="saveModeler"
-    />
+    >
+      <div slot="action">
+        <a-button>扩展按钮示例</a-button>
+      </div>
+    </bpmn-modeler>
   </div>
 </template>
 

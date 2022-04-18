@@ -12,13 +12,13 @@
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
       <a-form-model-item label="执行监听器" prop="executionListener">
-        <a-badge :count="executionListenerLength">
-          <a-button type="default" @click="dialogName = 'executionListenerDialog'"> 编辑 </a-button>
+        <a-badge :count="getExecutionListenerLength">
+          <a-button type="default" @click="handleShowExecutionListener"> 编辑 </a-button>
         </a-badge>
       </a-form-model-item>
       <a-form-model-item label="任务监听器" prop="taskListener" v-show="!!showConfig.taskListener">
-        <a-badge :count="taskListenerLength">
-          <a-button type="default" @click="dialogName = 'taskListenerDialog'"> 编辑 </a-button>
+        <a-badge :count="computedTaskListenerLength">
+          <a-button type="default" @click="taskListenerVisible = true"> 编辑 </a-button>
         </a-badge>
       </a-form-model-item>
       <a-form-model-item label="人员类型" prop="userType"  v-show="!!showConfig.userType">
@@ -27,15 +27,14 @@
                            :disabled="item.disabled">{{item.label}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="指定方式" prop="dataType"  v-show="!!showConfig.userType">
+      <a-form-model-item label="指定方式" prop="dataType"  v-show="!!showConfig.userType && formData.userType === 'assignee'">
         <a-radio-group :options="modeOptions" v-model:value="formData.dataType"/>
-<!--        <a-radio-group v-model="formData.mode">-->
-<!--          <a-radio v-for="(item, index) in modeOptions" :key="index" :value="item.value"-->
-<!--                   :disabled="item.disabled">{{item.label}}</a-radio>-->
-<!--        </a-radio-group>-->
       </a-form-model-item>
       <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='fixed' && formData.userType === 'assignee'">
         <a-select v-model="formData.assignee" placeholder="请委派指定人员" allow-clear :style="{width: '100%'}">
+          <a-select-option :value="initiator.value" v-if="showInitiator">
+            {{ initiator.label }}
+          </a-select-option>
           <a-select-option v-for="(item, index) in assigneeOptions" :key="index" :value="item.value"
                            :disabled="item.disabled">{{item.label}}</a-select-option>
         </a-select>
@@ -58,7 +57,11 @@
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="多实例" prop="multiInstance">
-        <a-button type="default" @click="dialogName = 'multiInstanceDialog'"> 编辑 </a-button>
+        <a-badge v-if="this.element.businessObject.loopCharacteristics">
+          <i slot="count" class="iconfont icon-spot" style="color: #f5222d"></i>
+          <a-button type="default" @click="multiInstanceVisible = true"> 编辑 </a-button>
+        </a-badge>
+        <a-button v-else type="default" @click="multiInstanceVisible = true"> 编辑 </a-button>
       </a-form-model-item>
       <a-form-model-item label="异步" prop="async">
         <a-switch v-model="formData.async" />
@@ -66,8 +69,25 @@
       <a-form-model-item label="优先级" prop="priority"  v-show="!!showConfig.priority">
         <a-input v-model="formData.priority" placeholder="请输入优先级" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey">
+      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions === undefined">
         <a-input v-model="formData.formKey" placeholder="请输入表单标识" :style="{width: '100%'}" allow-clear></a-input>
+      </a-form-model-item>
+      <a-form-model-item label="表单挂载" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined">
+        <a-select v-model="formData.formKey" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}">
+          <a-select-option v-for="(item, index) in associateFormDataOptions" :key="index" :value="item.value"
+                           :disabled="item.disabled">{{item.label}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined && (associateFormConfig.isView || associateFormConfig.isCreate)">
+        <a-space>
+          <a-button type="primary" v-if="associateFormConfig.isView">
+            查看表单
+          </a-button>
+          <a-button type="primary" v-if="associateFormConfig.isCreate">
+            创建表单
+          </a-button>
+        </a-space>
+
       </a-form-model-item>
       <a-form-model-item label="跳过条件" prop="skipExpression" v-show="!!showConfig.skipExpression">
         <a-input v-model="formData.skipExpression" placeholder="请输入跳过条件表达式" :style="{width: '100%'}" allow-clear>
@@ -92,40 +112,6 @@
       <a-form-model-item label="规则" prop="rules" v-show="!!showConfig.rules">
         <a-input v-model="formData.rules" placeholder="请输入规则" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-<!--      <a-row type="flex" justify="end" align="top" v-show="!!showConfig.asyncBefore">-->
-<!--        <a-col :span="10">-->
-<!--          <a-form-model-item label="异步前" prop="asyncBefore">-->
-<!--            <a-switch v-model="formData.asyncBefore" />-->
-<!--          </a-form-model-item>-->
-<!--        </a-col>-->
-<!--        <a-col :span="9">-->
-<!--          <a-form-model-item label="异步后" prop="asyncAfter">-->
-<!--            <a-switch v-model="formData.asyncAfter" />-->
-<!--          </a-form-model-item>-->
-<!--        </a-col>-->
-<!--        <a-col :span="5">-->
-<!--          <a-form-model-item label="排除" prop="exclusive" v-show="formData.asyncBefore || formData.asyncAfter">-->
-<!--            <a-switch v-model="formData.exclusive" />-->
-<!--          </a-form-model-item>-->
-<!--        </a-col>-->
-<!--      </a-row>-->
-<!--      <a-form-model-item label="脚本格式" prop="scriptFormat: true," v-show="!!showConfig.scriptFormat">-->
-<!--        <a-input v-model="formData.scriptFormat" placeholder="请输入脚本格式" :style="{width: '100%'}"-->
-<!--                 allow-clear></a-input>-->
-<!--      </a-form-model-item>-->
-<!--      <a-form-model-item label="脚本类型" prop="scriptType" v-show="!!showConfig.scriptType">-->
-<!--        <a-select v-model="formData.scriptType" placeholder="请选择脚本类型" allow-clear :style="{width: '100%'}">-->
-<!--          <a-select-option v-for="(item, index) in scriptTypeOptions" :key="index" :value="item.value"-->
-<!--                           :disabled="item.disabled">{{item.label}}</a-select-option>-->
-<!--        </a-select>-->
-<!--      </a-form-model-item>-->
-<!--      <a-form-model-item label="资源地址" prop="resource" v-show="!!showConfig.resource && formData.scriptType === 'outside'">-->
-<!--        <a-input v-model="formData.resource" placeholder="资源地址" :style="{width: '100%'}" allow-clear></a-input>-->
-<!--      </a-form-model-item>-->
-<!--      <a-form-model-item label="脚本" prop="script" v-show="!!showConfig.script  && formData.scriptType === 'inside'">-->
-<!--        <a-textarea v-model="formData.script" placeholder="填写脚本" :auto-size="{minRows: 4, maxRows: 4}"-->
-<!--                    :style="{width: '100%'}" allow-clear />-->
-<!--      </a-form-model-item>-->
       <a-form-model-item label="结果变量" prop="resultVariable" v-show="!!showConfig.resultVariable">
         <a-input v-model="formData.resultVariable" placeholder="请输入结果变量" :style="{width: '100%'}" allow-clear>
         </a-input>
@@ -143,41 +129,68 @@
       </a-form-model-item>
     </a-form-model>
 
-    <executionListenerDialog
-      v-if="dialogName === 'executionListenerDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishExecutionListener"
-    />
-    <taskListenerDialog
-      v-if="dialogName === 'taskListenerDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishTaskListener"
-    />
-    <multiInstanceDialog
-      v-if="dialogName === 'multiInstanceDialog'"
-      :element="element"
-      :modeler="modeler"
-      @close="finishMultiInstance"
-    />
+    <a-modal v-model:visible="executionListenerVisible" title="执行监听器" width="800px" :maskClosable="false" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="handleExecutionListener">关闭</a-button>
+      </template>
+      <executionListener
+          ref="executionListener"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
+
+    <a-modal v-model:visible="taskListenerVisible" title="任务监听器" width="800px" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="handleTaskListener">关闭</a-button>
+      </template>
+      <taskListener
+          ref="taskListener"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
+
+    <a-modal v-model:visible="multiInstanceVisible" title="多实例" :maskClosable="false" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="multiInstanceVisible = false">关闭</a-button>
+      </template>
+      <multiInstance
+          ref="multiInstance"
+          :element="element"
+          :modeler="modeler"
+      />
+    </a-modal>
   </div>
 </template>
 
 <script>
 import mixinPanel from '../../common/mixinPanel'
-import executionListenerDialog from './property/executionListener'
-import taskListenerDialog from './property/taskListener'
-import multiInstanceDialog from './property/multiInstance'
+import mixinExecutionListener from '../../common/mixinExecutionListener'
+import taskListener from './property/taskListener'
+import multiInstance from './property/multiInstance'
 import { commonParse, userTaskParse } from '../../common/parseElement'
+import { message } from 'ant-design-vue'
 export default {
   components: {
-    executionListenerDialog,
-    taskListenerDialog,
-    multiInstanceDialog
+    taskListener,
+    multiInstance
   },
-  mixins: [mixinPanel],
+  mixins: [mixinPanel,mixinExecutionListener],
   props: {
+    showInitiator:{
+      type:Boolean,
+      default: true
+    },
+    initiator:{
+      type:Object,
+      default: () => {
+        return {
+          label: "流程发起人",
+          value: "${INITIATOR}"
+        }
+      }
+    },
     users: {
       type: Array,
       required: true
@@ -189,13 +202,14 @@ export default {
   },
   data() {
     return {
+      taskListenerVisible:false,
+      multiInstanceVisible:false,
       userTypeOption: [
         { label: '指定人员', value: 'assignee' },
         { label: '候选人员', value: 'candidateUsers' },
         { label: '候选组', value: 'candidateGroups' }
       ],
       dialogName: '',
-      executionListenerLength: 0,
       taskListenerLength: 0,
       hasMultiInstance: false,
       formData: {
@@ -288,10 +302,7 @@ export default {
         "label": "动态",
         "value": "dynamic"
       }],
-      assigneeOptions: [{
-        "label": "流程发起人",
-        "value": "${INITIATOR}"
-      }, {
+      assigneeOptions: [ {
         "label": "张三",
         "value": "zhangsan"
       }],
@@ -418,12 +429,17 @@ export default {
     this.computedHasMultiInstance()
   },
   methods: {
-    computedExecutionListenerLength() {
-      this.executionListenerLength = this.element.businessObject.extensionElements?.values
-        ?.filter(item => item.$type === 'flowable:ExecutionListener').length ?? 0
+    handleTaskListener(){
+      var flag = this.$refs.taskListener.closeDialog();
+      console.log("xxxxxx",flag)
+      if (flag){
+        this.taskListenerVisible = false;
+      } else {
+        message.error("请补充信息")
+      }
     },
     computedTaskListenerLength() {
-      this.taskListenerLength = this.element.businessObject.extensionElements?.values
+      return  this.element.businessObject.extensionElements?.values
         ?.filter(item => item.$type === 'flowable:TaskListener').length ?? 0
     },
     computedHasMultiInstance() {

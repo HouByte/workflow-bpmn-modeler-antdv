@@ -1,108 +1,125 @@
 <template>
   <div>
-    <el-dialog
-      title="任务监听器"
-      :visible.sync="dialogVisible"
-      width="900px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-      @closed="$emit('close')"
-    >
-      <x-form ref="xForm" v-model="formData" :config="formConfig">
-        <template #params="scope">
-          <el-badge :value="scope.row.params ? scope.row.params.length : 0" type="primary">
-            <el-button size="small" @click="configParam(scope.$index)">配置</el-button>
-          </el-badge>
-        </template>
-      </x-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="medium" @click="closeDialog">确 定</el-button>
-      </span>
-    </el-dialog>
-    <listenerParam v-if="showParamDialog" :value="formData.taskListener[nowIndex].params" @close="finishConfigParam" />
+    <a-button type="primary" class="editable-add-btn" @click="handleEditableAdd" style="margin-bottom: 8px">新增</a-button>
+
+    <a-table :rowKey='(record,index)=>{return index}' :dataSource="formData.taskListener" :columns="columns" >
+      <template slot="event" slot-scope="text, record">
+        <a-select :default-value="text" v-model="record.event" style="width: 120px">
+          <a-select-option value="create">
+            Create
+          </a-select-option>
+          <a-select-option value="assignment">
+            Assignment
+          </a-select-option>
+          <a-select-option value="complete">
+            Complete
+          </a-select-option>
+          <a-select-option value="delete">
+            Delete
+          </a-select-option>
+        </a-select>
+      </template>
+      <template slot="type" slot-scope="text, record">
+        <a-select :default-value="text" v-model="record.type" style="width: 120px">
+          <a-select-option value="class">
+            类
+          </a-select-option>
+          <a-select-option value="expression">
+            表达式
+          </a-select-option>
+          <a-select-option value="delegateExpression">
+            委托表达式
+          </a-select-option>
+        </a-select>
+      </template>
+      <template slot="className" slot-scope="text, record">
+        <a-input  v-model:value="record.className" placeholder="请输入类名" />
+      </template>
+      <template slot="params" slot-scope="text, record,index">
+        <a-badge :count="text?text.length:0">
+          <a-button @click="configParam(index)">配置</a-button>
+        </a-badge>
+      </template>
+      <template slot="action" slot-scope="text, record,index">
+        <a-popconfirm
+            title="是否删除?"
+            @confirm="() => onDelete(index)"
+        >
+          <a href="javascript:;">删除</a>
+        </a-popconfirm>
+      </template>
+    </a-table>
+
+    <a-modal v-model:visible="listenerParamVisible" title="监听器参数" width="700px" :maskClosable="false" :closable="false">
+      <template #footer>
+        <a-button key="submit" type="primary" @click="handleListenerParam">关闭</a-button>
+      </template>
+      <listenerParam ref="listenerParam" :list="(formData.taskListener.length > 0 && nowIndex !== null) ? formData.taskListener[nowIndex].params:[]"  />
+    </a-modal>
   </div>
 </template>
 
 <script>
 import mixinPanel from '../../../common/mixinPanel'
 import listenerParam from './listenerParam'
+import { message } from 'ant-design-vue'
 export default {
   components: { listenerParam },
   mixins: [mixinPanel],
   data() {
     return {
       dialogVisible: true,
-      showParamDialog: false,
+      listenerParamVisible: false,
       nowIndex: null,
       formData: {
         taskListener: []
-      }
+      },
+      columns: [
+        {
+          title: '事件',
+          dataIndex: 'event',
+          key: 'event',
+          scopedSlots: {
+            customRender: 'event',
+          },
+        },
+        {
+          title: '类型',
+          dataIndex: 'type',
+          key: 'type',
+          scopedSlots: {
+            customRender: 'type',
+          },
+        },
+        {
+          title: '类名',
+          dataIndex: 'className',
+          key: 'className',
+          scopedSlots: {
+            customRender: 'className',
+          },
+        },
+        {
+          title: '参数',
+          dataIndex: 'params',
+          key: 'params',
+          scopedSlots: {
+            customRender: 'params',
+          },
+        },
+        {
+          title: '操作',
+          dataIndex: 'action',
+          key: 'action',
+          scopedSlots: {
+            customRender: 'action',
+          },
+        },
+      ],
     }
   },
   computed: {
-    formConfig() {
-    //   const _this = this
-      return {
-        inline: false,
-        item: [
-          {
-            xType: 'tabs',
-            tabs: [
-              {
-                label: '任务监听器',
-                name: 'taskListener',
-                column: [
-                  {
-                    label: '事件',
-                    name: 'event',
-                    width: 180,
-                    rules: [{ required: true, message: '请选择', trigger: ['blur', 'change'] }],
-                    xType: 'select',
-                    dic: [
-                      { label: 'create', value: 'create' },
-                      { label: 'assignment', value: 'assignment' },
-                      { label: 'complete', value: 'complete' },
-                      { label: 'delete', value: 'delete' }
-                    ],
-                    tooltip: `create（创建）：当任务已经创建，并且所有任务参数都已经设置时触发。<br />
-                              assignment（指派）：当任务已经指派给某人时触发。请注意：当流程执行到达用户任务时，在触发create事件之前，会首先触发assignment事件。<br />
-                              complete（完成）：当任务已经完成，从运行时数据中删除前触发。<br />
-                              delete（删除）：在任务即将被删除前触发。请注意任务由completeTask正常完成时也会触发。
-                    `
-                  },
-                  {
-                    label: '类型',
-                    name: 'type',
-                    width: 180,
-                    rules: [{ required: true, message: '请选择', trigger: ['blur', 'change'] }],
-                    xType: 'select',
-                    dic: [
-                      { label: '类', value: 'class' },
-                      { label: '表达式', value: 'expression' },
-                      { label: '委托表达式', value: 'delegateExpression' }
-                    ]
-                  },
-                  {
-                    label: 'java 类名',
-                    name: 'className',
-                    xType: 'input',
-                    rules: [{ required: true, message: '请输入', trigger: ['blur', 'change'] }]
-                  },
-                  {
-                    xType: 'slot',
-                    label: '参数',
-                    width: 120,
-                    slot: true,
-                    name: 'params'
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
+
   },
   mounted() {
     this.formData.taskListener = this.element.businessObject.extensionElements?.values
@@ -130,16 +147,41 @@ export default {
       }) ?? []
   },
   methods: {
+    onDelete(index){
+      this.formData.taskListener.splice(index, 1);
+    },
+    handleEditableAdd(){
+      this.formData.taskListener.push({
+        event: 'create',
+        className: '',
+        type: "class",
+        params: [],
+      })
+    },
     configParam(index) {
       this.nowIndex = index
       const nowObj = this.formData.taskListener[index]
       if (!nowObj.params) {
         nowObj.params = []
       }
-      this.showParamDialog = true
+      this.listenerParamVisible = true
+    },
+    handleListenerParam(){
+      if (this.nowIndex === null){
+        return;
+      }
+      var params = this.$refs.listenerParam.getParams();
+
+      if (params === undefined){
+        message.error("请填写完整")
+      } else {
+        this.formData.taskListener[this.nowIndex].params = params
+        this.listenerParamVisible = false
+      }
+
     },
     finishConfigParam(param) {
-      this.showParamDialog = false
+      this.listenerParamVisible = false
       // hack 数量不更新问题
       const cache = this.formData.taskListener[this.nowIndex]
       cache.params = param
@@ -180,17 +222,27 @@ export default {
       }
     },
     closeDialog() {
-      this.$refs.xForm.validate().then(() => {
+      var flag = true;
+      //校验
+      this.formData.taskListener.forEach(item => {
+        if (!item.className || item.className === "" || item.className.length <= 0){
+          flag = false;
+        }
+      })
+      if (flag){
+        //更新信息
         this.updateElement()
-        this.dialogVisible = false
-      }).catch(e => console.error(e))
+      }
+      return flag;
     }
   }
 }
 </script>
 
-<style>
-.flow-containers  .el-badge__content.is-fixed {
-    top: 18px;
+<style lang="less" scoped>
+input {
+&::placeholder {
+   color: #e15d5d;
+ }
 }
 </style>
