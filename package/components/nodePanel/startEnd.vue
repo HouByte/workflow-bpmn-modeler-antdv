@@ -11,36 +11,34 @@
         <a-textarea v-model="formData.documentation" placeholder="请输入流程描述" :auto-size="{minRows: 4, maxRows: 4}"
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="执行监听器">
+      <a-form-model-item label="执行监听器" v-if="!filter('executionListener')">
         <a-badge :count="getExecutionListenerLength">
           <a-button @click="handleShowExecutionListener">编辑</a-button>
         </a-badge>
       </a-form-model-item>
-      <a-form-model-item label="发起人" prop="formKey" v-show="!!showConfig.initiator">
-        <a-auto-complete v-model="formData.followUpDate" placeholder="发起人" :data-source="initiatorDataSource"
+      <a-form-model-item label="发起人" prop="formKey" v-show="!!showConfig.initiator" v-if="!filter('initiator')">
+        <a-auto-complete v-model="formData.initiator" placeholder="发起人" :data-source="initiatorDataSource"
                          filter-option allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions === undefined">
+      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey && associateFormConfig.enable === false" v-if="!filter('formKey')">
         <a-input v-model="formData.formKey" placeholder="请输入表单标识" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="表单挂载" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined">
+      <a-form-model-item label="表单挂载" prop="formKey" v-show="!!showConfig.formKey && associateFormConfig.enable" v-if="!filter('formKey')">
         <a-select v-model="formData.formKey" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}">
           <a-select-option v-for="(item, index) in associateFormDataOptions" :key="index" :value="item.value"
                            :disabled="item.disabled">{{item.label}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined && (associateFormConfig.isView || associateFormConfig.isCreate)">
+      <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormConfig.enable && (associateFormConfig.isPreview || associateFormConfig.isCreate)" v-if="!filter('formKey')">
         <a-space>
-          <a-button type="primary" v-if="associateFormConfig.isView">
+          <a-button type="primary" v-if="associateFormConfig.isPreview">
             查看表单
           </a-button>
           <a-button type="primary" v-if="associateFormConfig.isCreate">
             创建表单
           </a-button>
         </a-space>
-
       </a-form-model-item>
-
     </a-form-model>
 
     <a-modal v-model:visible="executionListenerVisible" title="执行监听器" width="800px" :maskClosable="false" :closable="false">
@@ -62,6 +60,12 @@ import mixinExecutionListener from '../../common/mixinExecutionListener'
 import { commonParse } from '../../common/parseElement'
 export default {
   mixins: [mixinPanel, mixinExecutionListener],
+  props:{
+    initiatorDataSource: {
+      type:Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       formData: {
@@ -90,7 +94,6 @@ export default {
         }],
         documentation: [],
       },
-      initiatorDataSource: ["initiator"],
     }
   },
   computed: {

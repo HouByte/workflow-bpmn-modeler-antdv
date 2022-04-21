@@ -7,16 +7,16 @@
       <a-form-model-item label="节点名称" prop="name">
         <a-input v-model="formData.name" placeholder="请输入节点名称" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="节点描述" prop="documentation">
+      <a-form-model-item label="节点描述" prop="documentation" v-if="!filter('nodeDocumentation')">
         <a-textarea v-model="formData.documentation" placeholder="请输入节点描述" :auto-size="{minRows: 1, maxRows: 2}"
                     :style="{width: '100%'}" allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="执行监听器" prop="executionListener">
+      <a-form-model-item label="执行监听器" prop="executionListener" v-if="!filter('executionListener')">
         <a-badge :count="getExecutionListenerLength">
           <a-button type="default" @click="handleShowExecutionListener"> 编辑 </a-button>
         </a-badge>
       </a-form-model-item>
-      <a-form-model-item label="任务监听器" prop="taskListener" v-show="!!showConfig.taskListener">
+      <a-form-model-item label="任务监听器" prop="taskListener" v-show="!!showConfig.taskListener"  v-if="!filter('taskListener')">
         <a-badge :count="computedTaskListenerLength">
           <a-button type="default" @click="taskListenerVisible = true"> 编辑 </a-button>
         </a-badge>
@@ -35,8 +35,8 @@
           <a-select-option :value="initiator.value" v-if="showInitiator">
             {{ initiator.label }}
           </a-select-option>
-          <a-select-option v-for="(item, index) in assigneeOptions" :key="index" :value="item.value"
-                           :disabled="item.disabled">{{item.label}}</a-select-option>
+          <a-select-option v-for="(item, index) in users" :key="index" :value="item.id"
+                           :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='dynamic' && formData.userType === 'assignee'">
@@ -46,41 +46,41 @@
       <a-form-model-item label="候选人员" prop="candidateUsers" v-show="!!showConfig.assignee && formData.userType === 'candidateUsers'">
         <a-select v-model="formData.candidateUsers" placeholder="请选择候选人员" mode='multiple' allow-clear
                   :style="{width: '100%'}">
-          <a-select-option v-for="(item, index) in candidateUsersOptions" :key="index" :value="item.value"
-                           :disabled="item.disabled">{{item.label}}</a-select-option>
+          <a-select-option v-for="(item, index) in users" :key="index" :value="item.id"
+                           :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="候选组" prop="candidateGroups" v-show="!!showConfig.candidateGroups && formData.userType === 'candidateGroups'">
         <a-select v-model="formData.candidateGroups" placeholder="请选择候选组" allow-clear :style="{width: '100%'}">
-          <a-select-option v-for="(item, index) in candidateGroupsOptions" :key="index" :value="item.value"
-                           :disabled="item.disabled">{{item.label}}</a-select-option>
+          <a-select-option v-for="(item, index) in groups" :key="index" :value="item.id"
+                           :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="多实例" prop="multiInstance">
+      <a-form-model-item label="多实例" prop="multiInstance"  v-if="!filter('multiInstance')">
         <a-badge v-if="this.element.businessObject.loopCharacteristics">
           <i slot="count" class="iconfont icon-spot" style="color: #f5222d"></i>
           <a-button type="default" @click="multiInstanceVisible = true"> 编辑 </a-button>
         </a-badge>
         <a-button v-else type="default" @click="multiInstanceVisible = true"> 编辑 </a-button>
       </a-form-model-item>
-      <a-form-model-item label="异步" prop="async">
+      <a-form-model-item label="异步" prop="async" v-if="!filter('async')">
         <a-switch v-model="formData.async" />
       </a-form-model-item>
-      <a-form-model-item label="优先级" prop="priority"  v-show="!!showConfig.priority">
+      <a-form-model-item label="优先级" prop="priority"  v-show="!!showConfig.priority"  v-if="!filter('priority')">
         <a-input v-model="formData.priority" placeholder="请输入优先级" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions === undefined">
+      <a-form-model-item label="表单标识" prop="formKey" v-show="!!showConfig.formKey && associateFormConfig.enable === false" v-if="!filter('formKey')">
         <a-input v-model="formData.formKey" placeholder="请输入表单标识" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="表单挂载" prop="formKey" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined">
-        <a-select v-model="formData.formKey" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}">
+      <a-form-model-item label="表单挂载" prop="formKey" v-show="!!showConfig.formKey && associateFormConfig.enable" v-if="!filter('formKey')">
+        <a-select v-model="formData.formKey" placeholder="请选择表单" allow-clear :style="{width: '100%'}">
           <a-select-option v-for="(item, index) in associateFormDataOptions" :key="index" :value="item.value"
-                           :disabled="item.disabled">{{item.label}}</a-select-option>
+                           :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormDataOptions !== undefined && (associateFormConfig.isView || associateFormConfig.isCreate)">
+      <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormConfig.enable && (associateFormConfig.isPreview || associateFormConfig.isCreate)"  v-if="!filter('formKey')">
         <a-space>
-          <a-button type="primary" v-if="associateFormConfig.isView">
+          <a-button type="primary" v-if="associateFormConfig.isPreview">
             查看表单
           </a-button>
           <a-button type="primary" v-if="associateFormConfig.isCreate">
@@ -89,41 +89,41 @@
         </a-space>
 
       </a-form-model-item>
-      <a-form-model-item label="跳过条件" prop="skipExpression" v-show="!!showConfig.skipExpression">
-        <a-input v-model="formData.skipExpression" placeholder="请输入跳过条件表达式" :style="{width: '100%'}" allow-clear>
-        </a-input>
+      <a-form-model-item label="跳过条件" prop="skipExpression" v-show="!!showConfig.skipExpression" v-if="!filter('skipExpression')">
+        <a-auto-complete v-model="formData.skipExpression" placeholder="跳过条件表达式" :data-source="skipExpressionDataSource"
+                         filter-option allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="是否为补偿" prop="isForCompensation" v-show="!!showConfig.isForCompensation">
+      <a-form-model-item label="是否为补偿" prop="isForCompensation" v-show="!!showConfig.isForCompensation"  v-if="!filter('isForCompensation')">
         <a-switch v-model="formData.isForCompensation" />
       </a-form-model-item>
-      <a-form-model-item label="服务任务可触发" prop="triggerable" v-show="!!showConfig.triggerable">
+      <a-form-model-item label="服务任务可触发" prop="triggerable" v-show="!!showConfig.triggerable" v-if="!filter('triggerable')">
         <a-switch v-model="formData.triggerable" />
       </a-form-model-item>
-      <a-form-model-item label="自动存储变量" prop="autoStoreVariables" v-show="!!showConfig.autoStoreVariables">
+      <a-form-model-item label="自动存储变量" prop="autoStoreVariables" v-show="!!showConfig.autoStoreVariables" v-if="!filter('autoStoreVariables')">
         <a-switch v-model="formData.autoStoreVariables" />
       </a-form-model-item>
-      <a-form-model-item label="排除" prop="exclude" v-show="!!showConfig.exclude">
+      <a-form-model-item label="排除" prop="exclude" v-show="!!showConfig.exclude" v-if="!filter('exclude')">
         <a-switch v-model="formData.exclude" />
       </a-form-model-item>
-      <a-form-model-item label="输入变量" prop="ruleVariablesInput"  v-show="!!showConfig.ruleVariablesInput">
+      <a-form-model-item label="输入变量" prop="ruleVariablesInput"  v-show="!!showConfig.ruleVariablesInput"  v-if="!filter('ruleVariablesInput')">
         <a-input v-model="formData.ruleVariablesInput" placeholder="请输入变量" :style="{width: '100%'}" allow-clear>
         </a-input>
       </a-form-model-item>
-      <a-form-model-item label="规则" prop="rules" v-show="!!showConfig.rules">
+      <a-form-model-item label="规则" prop="rules" v-show="!!showConfig.rules" v-if="!filter('')">
         <a-input v-model="formData.rules" placeholder="请输入规则" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="结果变量" prop="resultVariable" v-show="!!showConfig.resultVariable">
+      <a-form-model-item label="结果变量" prop="resultVariable" v-show="!!showConfig.resultVariable" v-if="!filter('resultVariable')">
         <a-input v-model="formData.resultVariable" placeholder="请输入结果变量" :style="{width: '100%'}" allow-clear>
         </a-input>
       </a-form-model-item>
-      <a-form-model-item label="类" prop="class" v-show="!!showConfig.class">
+      <a-form-model-item label="类" prop="class" v-show="!!showConfig.class" v-if="!filter('class')">
         <a-input v-model="formData.class" placeholder="请输入类" :style="{width: '100%'}" allow-clear></a-input>
       </a-form-model-item>
-      <a-form-model-item label="过期时间" prop="dueDate" v-show="!!showConfig.dueDate">
+      <a-form-model-item label="过期时间" prop="dueDate" v-show="!!showConfig.dueDate" v-if="!filter('dueDate')">
         <a-auto-complete v-model="formData.dueDate" placeholder="过期时间表达式" :data-source="dueDateDataSource"
                          filter-option allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="观察时间" prop="followUpDate" v-show="!!showConfig.followUpDate">
+      <a-form-model-item label="观察时间" prop="followUpDate" v-show="!!showConfig.followUpDate" v-if="!filter('followUpDate')">
         <a-auto-complete v-model="formData.followUpDate" placeholder="观察时间表达式" :data-source="followUpDateDataSource"
                          filter-option allow-clear />
       </a-form-model-item>
@@ -140,7 +140,7 @@
       />
     </a-modal>
 
-    <a-modal v-model:visible="taskListenerVisible" title="任务监听器" width="800px" :closable="false">
+    <a-modal v-model:visible="taskListenerVisible" title="任务监听器" width="600px" :maskClosable="false" :closable="false">
       <template #footer>
         <a-button key="submit" type="primary" @click="handleTaskListener">关闭</a-button>
       </template>
@@ -151,9 +151,10 @@
       />
     </a-modal>
 
-    <a-modal v-model:visible="multiInstanceVisible" title="多实例" :maskClosable="false" :closable="false">
+    <a-modal v-model:visible="multiInstanceVisible" title="多实例" width="800px"  :maskClosable="false" :closable="false">
       <template #footer>
-        <a-button key="submit" type="primary" @click="multiInstanceVisible = false">关闭</a-button>
+        <a-button key="submit" type="primary" @click="handleMultiInstance">确定</a-button>
+        <a-button type="primary" @click="handleClearMultiInstance">清空</a-button>
       </template>
       <multiInstance
           ref="multiInstance"
@@ -180,16 +181,11 @@ export default {
   props: {
     showInitiator:{
       type:Boolean,
-      default: true
+      default: () => true
     },
     initiator:{
       type:Object,
-      default: () => {
-        return {
-          label: "流程发起人",
-          value: "${INITIATOR}"
-        }
-      }
+      default: () => {}
     },
     users: {
       type: Array,
@@ -198,13 +194,25 @@ export default {
     groups: {
       type: Array,
       required: true
-    }
+    },
+    assigneeDataSource: {
+      type:Array,
+      default:()=> []
+    },
+    dueDateDataSource: {
+      type:Array,
+      default: ()=>  []
+    },
+    followUpDateDataSource: {
+      type:Array,
+      default: ()=> []
+    },
   },
   data() {
     return {
       taskListenerVisible:false,
       multiInstanceVisible:false,
-      userTypeOption: [
+      userTypeOptions: [
         { label: '指定人员', value: 'assignee' },
         { label: '候选人员', value: 'candidateUsers' },
         { label: '候选组', value: 'candidateGroups' }
@@ -285,16 +293,7 @@ export default {
           trigger: 'change'
         }]
       },
-      userTypeOptions: [{
-        "label": "指定人员",
-        "value": "assignee"
-      }, {
-        "label": "候选人员",
-        "value": "candidateUsers"
-      }, {
-        "label": "候选组",
-        "value": "candidateGroups"
-      }],
+
       modeOptions: [{
         "label": "固定",
         "value": "fixed"
@@ -302,27 +301,6 @@ export default {
         "label": "动态",
         "value": "dynamic"
       }],
-      assigneeOptions: [ {
-        "label": "张三",
-        "value": "zhangsan"
-      }],
-      candidateUsersOptions: [{
-        "label": "李四",
-        "value": "list"
-      }, {
-        "label": "张三",
-        "value": "zhangsan"
-      }],
-      candidateGroupsOptions: [{
-        "label": "管理员",
-        "value": "admin"
-      }, {
-        "label": "人事",
-        "value": "hr"
-      }],
-      assigneeDataSource: ["#{approval}","${approverId}","${INITIATOR}"],
-      dueDateDataSource: ["${dueDate}"],
-      followUpDateDataSource: ["${followUpDate}"],
       scriptTypeOptions: [{
         "label": "外部资源",
         "value": "outside"
@@ -369,7 +347,7 @@ export default {
     },
     'formData.async': function(val) {
       if (val === '') val = null
-      this.updateProperties({ 'flowable:async': true })
+      this.updateProperties({ 'flowable:async': val })
     },
     'formData.dueDate': function(val) {
       if (val === '') val = null
@@ -425,10 +403,18 @@ export default {
     cache = userTaskParse(cache)
     this.formData = cache
     this.computedExecutionListenerLength()
-    this.computedTaskListenerLength()
     this.computedHasMultiInstance()
   },
   methods: {
+    handleClearMultiInstance(){
+      this.$refs.multiInstance.clear();
+    },
+    handleMultiInstance(){
+      var flag = this.$refs.multiInstance.save();
+      if (flag){
+        this.multiInstanceVisible = false;
+      }
+    },
     handleTaskListener(){
       var flag = this.$refs.taskListener.closeDialog();
       console.log("xxxxxx",flag)
@@ -439,7 +425,7 @@ export default {
       }
     },
     computedTaskListenerLength() {
-      return  this.element.businessObject.extensionElements?.values
+      return this.element.businessObject.extensionElements?.values
         ?.filter(item => item.$type === 'flowable:TaskListener').length ?? 0
     },
     computedHasMultiInstance() {
@@ -448,25 +434,7 @@ export default {
       } else {
         this.hasMultiInstance = false
       }
-    },
-    finishExecutionListener() {
-      if (this.dialogName === 'executionListenerDialog') {
-        this.computedExecutionListenerLength()
-      }
-      this.dialogName = ''
-    },
-    finishTaskListener() {
-      if (this.dialogName === 'taskListenerDialog') {
-        this.computedTaskListenerLength()
-      }
-      this.dialogName = ''
-    },
-    finishMultiInstance() {
-      if (this.dialogName === 'multiInstanceDialog') {
-        this.computedHasMultiInstance()
-      }
-      this.dialogName = ''
-    },
+    }
   }
 }
 </script>

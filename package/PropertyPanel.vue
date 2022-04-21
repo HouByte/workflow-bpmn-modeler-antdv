@@ -4,11 +4,22 @@
     <component
       :is="getComponent"
       v-if="element"
+      :filters="filters"
       :element="element"
       :modeler="modeler"
       :users="users"
       :groups="groups"
-      :categorys="categorys"
+      :categories="categories"
+      :show-initiator="showInitiator"
+      :initiator="initiator"
+      :associate-form-config="associateFormConfig"
+      :associate-form-data-options="associateFormDataOptions"
+      :assignee-data-source="assigneeDataSource"
+      :due-date-data-source="dueDateDataSource"
+      :follow-up-date-data-source="followUpDateDataSource"
+      :initiator-data-source="initiatorDataSource"
+      :skip-expression-data-source="skipExpressionDataSource"
+      :condition-expression-data-source="conditionExpressionDataSource"
     />
   </div>
 </template>
@@ -25,6 +36,27 @@ export default {
   name: 'PropertyPanel',
   components: { processPanel, taskPanel, startEndPanel, sequenceFlowPanel, gatewayPanel },
   props: {
+    filters: {
+      type: Array
+    },
+    showInitiator:{
+      type:Boolean,
+      default: () => true
+    },
+    initiator:{
+      type:Object,
+      default: () => {}
+    },
+    associateFormConfig:{
+      type:Object,
+      default:() => {
+        return {}
+      }
+    },
+    associateFormDataOptions: {
+      type: Array,
+      default:() => []
+    },
     users: {
       type: Array,
       required: true
@@ -33,13 +65,37 @@ export default {
       type: Array,
       required: true
     },
-    categorys: {
+    categories: {
       type: Array,
       required: true
     },
     modeler: {
       type: Object,
       required: true
+    },
+    initiatorDataSource: {
+      type:Array,
+      default: () => []
+    },
+    assigneeDataSource: {
+      type:Array,
+      default:()=> []
+    },
+    dueDateDataSource: {
+      type:Array,
+      default: ()=>  []
+    },
+    followUpDateDataSource: {
+      type:Array,
+      default: ()=> []
+    },
+    skipExpressionDataSource: {
+      type: Array,
+      default: () => []
+    },
+    conditionExpressionDataSource: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

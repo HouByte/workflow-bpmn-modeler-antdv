@@ -2,17 +2,7 @@
   <div>
     <a-button type="primary" class="editable-add-btn" @click="handleEditableAdd" style="margin-bottom: 8px">新增</a-button>
 
-    <a-table :rowKey='(record,index)=>{return index}' :dataSource="formData.signal" :columns="columns" >
-      <template slot="scope" slot-scope="text, record">
-        <a-select :default-value="text" v-model="record.scope" style="width: 120px">
-          <a-select-option value="global">
-            全局
-          </a-select-option>
-          <a-select-option value="processInstance">
-            流程实例
-          </a-select-option>
-        </a-select>
-      </template>
+    <a-table :rowKey='(record,index)=>{return index}' :dataSource="formData.messages" :columns="columns" >
       <template slot="id" slot-scope="text, record">
         <a-input  v-model:value="record.id" :placeholder="record.placeholder?record.placeholder:'请输入id'" @blur="handleId(record)"/>
       </template>
@@ -36,7 +26,7 @@ import mixinPanel from '../../../common/mixinPanel'
 export default {
   mixins: [mixinPanel],
   props:{
-    signals: {
+    messages: {
       type: Array,
       default:() => []
     },
@@ -46,17 +36,9 @@ export default {
       rootElements:undefined,
       signalIds:[],
       formData: {
-        signal: this.signals
+        messages: this.messages
       },
       columns: [
-        {
-          title: '作用域',
-          dataIndex: 'scope',
-          key: 'scope',
-          scopedSlots: {
-            customRender: 'scope',
-          },
-        },
         {
           title: 'id',
           dataIndex: 'id',
@@ -87,13 +69,12 @@ export default {
   computed: {
   },
   mounted() {
-    this.getSignalElements();
+    this.getMessageElements();
   },
   methods: {
     handleId(row){
       var toRepeat = []
-      console.log(toRepeat)
-      this.formData.signal.forEach(item=>{
+      this.formData.messages.forEach(item=>{
         if (toRepeat.indexOf(row.id) !== -1){
           row.id=undefined;
           row.placeholder = "id不能相同";
@@ -107,47 +88,43 @@ export default {
 
       for (let i = 0; i < this.rootElements.length; i++) {
         var item = this.rootElements[i]
-        if (item.$type==='bpmn:Signal' && item.id === id){
-          this.formData.signal.splice(index, 1);
+        if (item.$type==='bpmn:Message' && item.id === id){
+          this.formData.messages.splice(index, 1);
           this.rootElements.splice(i, 1);
         }
       }
     },
     handleEditableAdd(){
-      this.formData.signal.push({
-        scope: 'global',
+      this.formData.messages.push({
         id: '',
         name: ""
       })
     },
     updateElement() {
-      let signalElements = this.getSignalElementIds()
-      this.formData.signal.forEach(item => {
+      let messageElements = this.getMessageElementIds()
+      this.formData.messages.forEach(item => {
 
-        console.log(signalElements)
+        console.log(messageElements,item)
         var toRepeat = []
-        if (toRepeat.indexOf(item.id)=== -1 && signalElements.indexOf(item.id) === -1){
-          // const signalRef = this.modeler.get('moddle').create("bpmn:Signal", item);
-          const signalRef = this.modeler.get('moddle').create("bpmn:Signal");
-          signalRef['id']=item.id;
-          signalRef['name']=item.name
-          signalRef.$attrs['flowable:scope']=item.scope
-          this.rootElements.push(signalRef);
+        if (toRepeat.indexOf(item.id)=== -1 && messageElements.indexOf(item.id) === -1){
+          const messageRef = this.modeler.get('moddle').create("bpmn:Message",item);
+          this.rootElements.push(messageRef);
         }
         toRepeat.push(item.id);
 
       })
     },
-    saveSignal() {
-      if (this.formData.signal === undefined || this.formData.signal.length === 0){
+    saveMessage() {
+      if (this.formData.messages === undefined || this.formData.messages.length === 0){
         return true;
       }
       var flag = true
-      this.formData.signal.forEach(item =>{
+      this.formData.messages.forEach(item =>{
         if (item.name === "" || item.id === ""){
           flag = false;
         }
       })
+      console.log(flag)
       if (flag){
         this.updateElement()
       }

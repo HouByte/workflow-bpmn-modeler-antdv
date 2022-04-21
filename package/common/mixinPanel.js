@@ -1,40 +1,24 @@
-import xcrud from 'xcrud'
-import golbalConfig from 'xcrud/package/common/config'
 import showConfig from '../flowable/showConfig'
-import { message } from 'ant-design-vue'
 
-golbalConfig.set({
-  input: {
-    // size: 'mini'
-  },
-  select: {
-    // size: 'mini'
-  },
-  colorPicker: {
-    showAlpha: true
-  },
-  xform: {
-    form: {
-      labelWidth: 'auto'
-      // size: 'mini'
-    }
-  }
-})
 export default {
-  components: { xForm: xcrud.xForm },
   props: {
+    filters: {
+      type: Array,
+      default: () => []
+    },
     associateFormConfig:{
       type:Object,
       default:() => {
         return {
-          isView: true,
+          enable: false, //此项为false，后设置两项均无效
+          isPreview: true,
           isCreate: true,
         }
       }
     },
     associateFormDataOptions: {
       type: Array,
-      default:undefined
+      default:() => []
     },
     modeler: {
       type: Object,
@@ -44,7 +28,15 @@ export default {
       type: Object,
       required: true
     },
-    categorys: {
+    categories: {
+      type: Array,
+      default: () => []
+    },
+    skipExpressionDataSource: {
+      type: Array,
+      default: () => []
+    },
+    conditionExpressionDataSource: {
       type: Array,
       default: () => []
     }
@@ -69,6 +61,57 @@ export default {
     updateProperties(properties) {
       const modeling = this.modeler.get('modeling')
       modeling.updateProperties(this.element, properties)
+    },
+    getSignalElements(){
+      var signals = [];
+      this.rootElements = this.modeler.getDefinitions().rootElements;
+      if (this.rootElements.length > 0){
+        this.rootElements.forEach(item=>{
+          if (item.$type==='bpmn:Signal'){
+            signals.push(item);
+          }
+        })
+      }
+      return signals;
+    },
+    getSignalElementIds(){
+      var signals = [];
+      this.rootElements = this.modeler.getDefinitions().rootElements;
+      if (this.rootElements.length > 0){
+        this.rootElements.forEach(item=>{
+          if (item.$type==='bpmn:Signal'){
+            signals.push(item.id);
+          }
+        })
+      }
+      return signals;
+    },
+    getMessageElements(){
+      var signals = [];
+      this.rootElements = this.modeler.getDefinitions().rootElements;
+      if (this.rootElements.length > 0){
+        this.rootElements.forEach(item=>{
+          if (item.$type==='bpmn:Message'){
+            signals.push(item);
+          }
+        })
+      }
+      return signals;
+    },
+    getMessageElementIds(){
+      var signals = [];
+      this.rootElements = this.modeler.getDefinitions().rootElements;
+      if (this.rootElements.length > 0){
+        this.rootElements.forEach(item=>{
+          if (item.$type==='bpmn:Message'){
+            signals.push(item.id);
+          }
+        })
+      }
+      return signals;
+    },
+    filter(name){
+      return this.filters.indexOf(name) !== -1
     }
   },
   computed: {

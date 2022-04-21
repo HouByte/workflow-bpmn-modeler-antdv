@@ -39,6 +39,7 @@
     "bpmn-js": "^7.2.1",
     "viser-vue": "^2.4.8",
     "vue": "^2.6.10",
+    "vue-codemirror": "^4.0.6",
     "xcrud": "0.4.1"
   },
   "devDependencies": {

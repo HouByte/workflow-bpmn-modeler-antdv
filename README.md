@@ -24,7 +24,7 @@ yarn add workflow-bpmn-modeler
 ```
 
 ## How to use 👣
-
+#### simple demo
 ```vue
 <template>
   <div>
@@ -78,6 +78,103 @@ export default {
 };
 </script>
 ```
+
+#### Full demo
+
+## Props
+### Primary Props
+
+
+| Attributes        | describe                        | structure                                                    | type    | default |
+| ----------------- | ------------------------------- | ------------------------------------------------------------ | ------- | ------- |
+| xml               | xml                             |                                                              | String  | ''      |
+| users             | assignee or candidate user list | [<br/>  { name: 'name', id: 'id' },<br/>]                    | Array   | []      |
+| groups            | candidate groups                | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
+| categories        | process categories              | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
+| isView            | class view-mode                 |                                                              | Boolean | false   |
+| rightActionConfig | head right action config        | {<br/>  ".*":{<br/>    "show":true,<br/>    "icon":true,<br/>    "label":"XML"<br/>    }<br/>  } | Object  | 见下文  |
+
+rightActionConfig default
+
+```json
+{
+  "showCode":{
+    "show":true,
+    "icon":true,
+    "label":"XML"
+  },
+  "downloadXML":{
+    "show":true,
+    "icon":true,
+    "label":"XML"
+  },
+  "downloadSVG":{
+    "show":true,
+    "icon":true,
+    "label":"SVG"
+  },
+  "save":{
+    "show":true,
+    "icon":true,
+    "label":"保存"
+  }
+}
+```
+
+### Panel Props
+
+| Attributes                    | describe                                      | type    | default                                                      |
+| ----------------------------- | --------------------------------------------- | ------- | ------------------------------------------------------------ |
+| filters                       | panel filter attributes                       | Array   | []                                                           |
+| showInitiator                 | start node initiator show                     | Boolean | true                                                         |
+| initiator                     | start node initiator auto complete dataSource | Object  | {<br/>    label: "流程发起人",<br/>    value: "${INITIATOR}"<br/>} |
+| associateFormConfig           | associate form config                         | Object  | {<br/>//此项为false，后设置两项均无效<br/>    enable:false,  <br/>   isView: true,<br/>    isCreate: true,<br/>} |
+| associateFormDataOptions      | associate form auto complete dataSource       | Array   |                                                              |
+| assigneeDataSource            | assignee auto complete dataSource             | Array   | [<br/>    "#{approval}",<br/>    "${approverId}",<br/>    "${INITIATOR}"<br/>] |
+| dueDateDataSource             | due date auto complete dataSource             | Array   | ["${dueDate}"]                                               |
+| followUpDateDataSource        | follow up auto complete dataSource            | Array   | ["${followUpDate}"]                                          |
+| initiatorDataSource           | initiator auto complete dataSource            | Array   | ["initiator"]                                                |
+| skipExpressionDataSource      | skip expression auto complete dataSource      | Array   | []                                                           |
+| conditionExpressionDataSource | condition expression auto complete dataSource | Array   | []                                                           |
+
+
+
+
+#### filtering
+```javascript
+filters: {
+  type: Array,
+  default: () => []
+}
+```
+Parameter List
+
+| 选项              | 过滤字段            |
+| ----------------- | ------------------- |
+| 流程分类          | category            |
+| 流程描述          | documentation       |
+| 执行监听器        | executionListener   |
+| 信号定义          | signal              |
+| 消息定义          | message             |
+| 节点描述          | nodeDocumentation   |
+| 跳转条件          | conditionExpression |
+| 跳过条件          | skipExpression      |
+| 发起人            | initiator           |
+| 表单标识/表单挂载 | formKey             |
+| 任务监听器        | taskListener        |
+| 多实例            | multiInstance       |
+| 异步              | async               |
+| 优先级            | priority            |
+| 是否为补偿        | isForCompensation   |
+| 服务任务可触发    | triggerable         |
+| 自动存储变量      | autoStoreVariables  |
+| 排除              | exclude             |
+| 输入变量          | ruleVariablesInput  |
+| 规则              | rules               |
+| 结果变量          | resultVariable      |
+| 类                | class               |
+| 过期时间          | dueDate             |
+| 观察时间          | followUpDate        |
 
 ## Iframe Deployment 🎪
 

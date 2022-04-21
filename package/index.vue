@@ -4,9 +4,9 @@
       <a-layout-header theme="light" style="border-bottom: 1px solid rgb(218 218 218);height: auto;background-color:#fff;">
         <div style="display: flex; padding: 5px 0px; justify-content: space-between;">
           <a-space>
-            <a-tooltip effect="dark" title="加载xml" placement="bottom">
+            <a-tooltip effect="dark" title="打开" placement="bottom">
               <a-button icon="el-icon-folder-opened" >
-                <i class="iconfont icon-upload"></i>
+                <i class="iconfont icon-file-open"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="新建" placement="bottom">
@@ -43,10 +43,18 @@
           </a-space>
           <a-space>
             <slot name="action"></slot>
-            <a-button @click="saveXML(true)">查看xml</a-button>
-            <a-button @click="saveXML(true)">下载xml</a-button>
-            <a-button @click="saveImg('svg', true)">下载svg</a-button>
-            <a-button type="primary" @click="save">保存模型</a-button>
+            <a-button @click="showXML" v-if="rightActionConfig.showCode?rightActionConfig.showCode.show:false">
+              <i class="iconfont icon-browse" v-if="rightActionConfig.showCode.icon"></i>{{ rightActionConfig.showCode.label }}
+            </a-button>
+            <a-button @click="saveXML(true)" v-if="rightActionConfig.downloadXML?rightActionConfig.downloadXML.show:false">
+              <i class="iconfont icon-download" v-if="rightActionConfig.downloadXML.icon"></i>{{ rightActionConfig.downloadXML.label }}
+            </a-button>
+            <a-button @click="saveImg('svg', true)" v-if="rightActionConfig.downloadSVG?rightActionConfig.downloadSVG.show:false">
+              <i class="iconfont icon-download" v-if="rightActionConfig.downloadSVG.icon"></i>{{ rightActionConfig.downloadSVG.label }}
+            </a-button>
+            <a-button type="primary" @click="save" v-if="rightActionConfig.save?rightActionConfig.save.show:false">
+              <i class="iconfont icon-upload" v-if="rightActionConfig.save.icon"></i>{{ rightActionConfig.save.label }}
+            </a-button>
           </a-space>
         </div>
       </a-layout-header>
@@ -55,10 +63,36 @@
           <div ref="canvas" class="canvas" />
         </a-layout-content>
         <a-layout-sider style="background: #fff;min-width: 400px;">
-          <panel v-if="modeler" :modeler="modeler" :users="users" :groups="groups" :categorys="categorys" />
+          <panel v-if="modeler"
+                 :filters="filters"
+                 :modeler="modeler"
+                 :users="users"
+                 :groups="groups"
+                 :categories="categories"
+                 :show-initiator="showInitiator"
+                 :initiator="initiator"
+                 :associate-form-config="associateFormConfig"
+                 :associate-form-data-options="associateFormDataOptions"
+                 :assignee-data-source="assigneeDataSource"
+                 :due-date-data-source="dueDateDataSource"
+                 :follow-up-date-data-source="followUpDateDataSource"
+                 :initiator-data-source="initiatorDataSource"
+                 :skip-expression-data-source="skipExpressionDataSource"
+                 :condition-expression-data-source="conditionExpressionDataSource"
+          />
         </a-layout-sider>
       </a-layout>
     </a-layout>
+
+    <a-modal v-model:visible="codeVisible" title="XML" width="60%" style="height: 800px">
+      <div class="codediv">
+        <codemirror v-model="xmlCode" :options="options"></codemirror>
+      </div>
+
+      <template #footer>
+      </template>
+
+    </a-modal>
 
   </div>
 </template>
@@ -72,12 +106,51 @@ import BpmData from './BpmData'
 import getInitStr from './flowable/init'
 // 引入flowable的节点文件
 import flowableModdle from './flowable/flowable.json'
+
+import {codemirror} from 'vue-codemirror'
+import 'codemirror/lib/codemirror.css'
+// 引入主题,配置后生效
+import 'codemirror/theme/rubyblue.css'
+//引入语言,配置后生效
+import 'codemirror/mode/xml/xml.js'
+
 export default {
   name: 'WorkflowBpmnModeler',
   components: {
-    panel
+    panel,codemirror
   },
   props: {
+    //过滤面板
+    filters: {
+      type: Array
+    },
+    rightActionConfig:{
+      type: Object,
+      default:()=>{
+        return {
+          "showCode":{
+            "show":true,
+            "icon":true,
+            "label":"XML"
+          },
+          "downloadXML":{
+            "show":true,
+            "icon":true,
+            "label":"XML"
+          },
+          "downloadSVG":{
+            "show":true,
+            "icon":true,
+            "label":"SVG"
+          },
+          "save":{
+            "show":true,
+            "icon":true,
+            "label":"保存"
+          },
+        }
+      }
+    },
     xml: {
       type: String,
       default: ''
@@ -90,20 +163,89 @@ export default {
       type: Array,
       default: () => []
     },
-    categorys: {
+    categories: {
       type: Array,
       default: () => []
     },
     isView: {
       type: Boolean,
       default: false
+    },
+    showInitiator:{
+      type:Boolean,
+      default: () => true
+    },
+    initiator:{
+      type:Object,
+      default: () => {
+        return {
+          label: "流程发起人",
+          value: "${INITIATOR}"
+        }
+      }
+    },
+    associateFormConfig:{
+      type:Object,
+      default:() => {
+        return {
+          enable:false, //此项为false，后设置两项均无效
+          isView: true,
+          isCreate: true,
+        }
+      }
+    },
+    associateFormDataOptions: {
+      type: Array,
+      default:() => []
+    },
+    assigneeDataSource: {
+      type:Array,
+      default:()=> ["#{approval}","${approverId}","${INITIATOR}"]
+    },
+    dueDateDataSource: {
+      type:Array,
+      default: ()=>  ["${dueDate}"]
+    },
+    followUpDateDataSource: {
+      type:Array,
+      default: ()=> ["${followUpDate}"]
+    },
+    initiatorDataSource: {
+      type:Array,
+      default: () => ["initiator"]
+    },
+    skipExpressionDataSource: {
+      type: Array,
+      default: () => []
+    },
+    conditionExpressionDataSource: {
+      type: Array,
+      default: () => ['${approve}','${!approve}']
     }
   },
   data() {
     return {
       modeler: null,
       taskList: [],
-      zoom: 1
+      zoom: 1,
+      codeVisible:false,
+      xmlCode:'',
+      //需编辑和显示的内容
+      // 默认配置
+      options: {
+        tabSize: 2, // 缩进格式
+        theme: 'rubyblue', // 指定主题，对应主题库 JS 需要提前引入
+        lineNumbers: true, // 是否显示行号
+        //指定语言类型,如果需要编辑和显示其他语言,需要import语言js然后修改此配置
+        mode: 'xml',
+        line: true,
+        styleActiveLine: true, // 高亮选中行
+        //是否为只读,如果为"nocursor" 不仅仅为只读 连光标都无法在区域聚焦
+        readOnly: true,
+        hintOptions: {
+          completeSingle: true // 当匹配只有一项的时候是否自动补全
+        }
+      }
     }
   },
   watch: {
@@ -291,6 +433,10 @@ export default {
         if (rootElements[i].$type === 'bpmn:Process') return rootElements[i]
       }
     },
+    async showXML(){
+      this.xmlCode = await this.saveXML(false)
+      this.codeVisible = true;
+    },
     async saveXML(download = false) {
       try {
         const { xml } = await this.modeler.saveXML({ format: true })
@@ -352,6 +498,14 @@ export default {
 
 html,body,#app{
   height:100%
+}
+
+.codediv{
+  height: 900px;
+}
+
+.iconfont{
+  margin-right: 5px;
 }
 
 .flow-containers {
@@ -429,5 +583,12 @@ html,body,#app{
   //   width: 100px;
   //   top: -20px !important;
   // }
+}
+</style>
+
+<style lang="less" scoped>
+/deep/ .CodeMirror {
+  border: 1px solid #eee;
+  height: 900px !important;
 }
 </style>

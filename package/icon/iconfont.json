@@ -6,16 +6,23 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "6151161",
+      "name": "info-circle-fill",
+      "font_class": "info",
+      "unicode": "e7dc",
+      "unicode_decimal": 59356
+    },
+    {
       "icon_id": "952",
       "name": "云上传",
-      "font_class": "yunshangchuan",
+      "font_class": "upload",
       "unicode": "e600",
       "unicode_decimal": 58880
     },
     {
       "icon_id": "1211",
       "name": "云下载",
-      "font_class": "yunxiazai",
+      "font_class": "download",
       "unicode": "e601",
       "unicode_decimal": 58881
     },
@@ -60,13 +67,6 @@
       "font_class": "file-open",
       "unicode": "e670",
       "unicode_decimal": 58992
-    },
-    {
-      "icon_id": "15838548",
-      "name": "upload",
-      "font_class": "upload",
-      "unicode": "e682",
-      "unicode_decimal": 59010
     },
     {
       "icon_id": "15838552",
