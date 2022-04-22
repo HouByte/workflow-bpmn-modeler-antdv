@@ -4,11 +4,20 @@
       <a-layout-header theme="light" style="border-bottom: 1px solid rgb(218 218 218);height: auto;background-color:#fff;">
         <div style="display: flex; padding: 5px 0px; justify-content: space-between;">
           <a-space>
-            <a-tooltip effect="dark" title="打开" placement="bottom">
-              <a-button icon="el-icon-folder-opened" >
-                <i class="iconfont icon-file-open"></i>
-              </a-button>
-            </a-tooltip>
+            <a-upload
+                name="file"
+                action=""
+                accept="application/xml"
+                :showUploadList="false"
+                :beforeUpload="openBpmn"
+            >
+              <a-tooltip effect="dark" title="打开" placement="bottom">
+                <a-button icon="el-icon-folder-opened" >
+                  <i class="iconfont icon-file-open"></i>
+                </a-button>
+              </a-tooltip>
+            </a-upload>
+
             <a-tooltip effect="dark" title="新建" placement="bottom">
               <a-button icon="el-icon-circle-plus" @click="newDiagram">
                 <i class="iconfont icon-add"></i>
@@ -113,6 +122,7 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/rubyblue.css'
 //引入语言,配置后生效
 import 'codemirror/mode/xml/xml.js'
+import { message } from 'ant-design-vue'
 
 export default {
   name: 'WorkflowBpmnModeler',
@@ -120,7 +130,7 @@ export default {
     panel,codemirror
   },
   props: {
-    //过滤面板
+    //过滤面板参数
     filters: {
       type: Array
     },
@@ -468,6 +478,11 @@ export default {
       window.parent.postMessage(result, '*')
     },
     openBpmn(file) {
+      console.log(file)
+      if (file.type !== 'text/xml'){
+        message.error("需要打开bpmn20.xml文件")
+        return
+      }
       const reader = new FileReader()
       reader.readAsText(file, 'utf-8')
       reader.onload = () => {
