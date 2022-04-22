@@ -1,24 +1,22 @@
-[English](./README_EN.md) | 简体中文
+English | [简体中文](./README.md)
 
-# workflow-bpmn-modeler-antdv
+# workflow-bpmn-modeler
 
 [![NPM Version](http://img.shields.io/npm/v/workflow-bpmn-modeler.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler)
 [![NPM Downloads](https://img.shields.io/npm/dm/workflow-bpmn-modeler.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler)
 ![](https://img.shields.io/badge/license-MIT-000000.svg)
 
-🔥 本项目基于 `vue` 和 `bpmn.io@7.0` ，实现 flowable 的工作流设计器
-🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 进行了Ant Design Vue的适配，初始版本基于0.2.8发展适配为antdv下的1.0.0版本
-🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 如果需要Element UI版本可以直接访问原仓库
+🔥 This project implements flowable's workflow designer based on `vue` and `bpmn.io@7.0`
 
-## 预览 📟
+## Preview 📟
 
 ![20200930030243](https://cdn.jsdelivr.net/gh/goldsubmarine/cdn@master/blog/20200930030243.png)
 
-## 在线 demo 📢
+## Online demo 📢
 
 👉 https://vincent-vic.github.io/workflow-bpmn-modeler-antdv/demo/
 
-## 安装 ⏳
+## Install ⏳
 
 ```bash
 # yarn
@@ -27,8 +25,8 @@ yarn add workflow-bpmn-modeler-antdv
 npm i workflow-bpmn-modeler-antdv
 ```
 
-## 使用说明 👣
-#### 简单例子
+## How to use 👣
+#### simple demo
 ```vue
 <template>
   <div>
@@ -83,7 +81,7 @@ export default {
 </script>
 ```
 
-#### 完整示例
+#### Full demo
 ```vue
 <template>
   <div id="app">
@@ -210,23 +208,20 @@ html, body, #app {
 </style>
 
 ```
-> 内容参数均为选用，无需任何参数也可以使用，根据实际情况配置
+## Props
+### Primary Props
 
 
-## 组件参数
-### 主要参数
+| Attributes        | describe                        | structure                                                    | type    | default |
+| ----------------- | ------------------------------- | ------------------------------------------------------------ | ------- | ------- |
+| xml               | xml                             |                                                              | String  | ''      |
+| users             | assignee or candidate user list | [<br/>  { name: 'name', id: 'id' },<br/>]                    | Array   | []      |
+| groups            | candidate groups                | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
+| categories        | process categories              | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
+| isView            | class view-mode                 |                                                              | Boolean | false   |
+| rightActionConfig | head right action config        | {<br/>  ".*":{<br/>    "show":true,<br/>    "icon":true,<br/>    "label":"XML"<br/>    }<br/>  } | Object  | 见下文  |
 
-
-| Attributes        | describe            | structure                                                    | type    | default |
-| ----------------- | ------------------- | ------------------------------------------------------------ | ------- | ------- |
-| xml               | 流程文件xml数据       |                                                              | String  | ''      |
-| users             | 指定或候选用户列表     | [<br/>  { name: 'name', id: 'id' },<br/>]                    | Array   | []      |
-| groups            | 候选组               | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
-| categories        | 流程分类             | [<br/>    { name: 'name', id: 'id' },<br/>]                  | Array   | []      |
-| isView            | 视图模式             |                                                              | Boolean | false   |
-| rightActionConfig | 头部右侧导航栏按钮配置  | {<br/>  ".*":{<br/>    "show":true,<br/>    "icon":true,<br/>    "label":"XML"<br/>    }<br/>  } | Object  | 见下文  |
-
-头部右侧导航栏按钮配置默认配置
+rightActionConfig default
 
 ```json
 {
@@ -253,36 +248,33 @@ html, body, #app {
 }
 ```
 
-### 面板参数
+### Panel Props
 
 | Attributes                    | describe                                      | type    | default                                                      |
 | ----------------------------- | --------------------------------------------- | ------- | ------------------------------------------------------------ |
-| filters                       | 面板参数过滤                       | Array   | []                                                           |
-| showInitiator                 | 【用户任务】指定人员中是否显示发起人（固定）                    | Boolean | true                                                         |
-| initiator                     | 【用户任务】指定人员中发起人显示数据格式       | Object  | {<br/>    label: "流程发起人",<br/>    value: "${INITIATOR}"<br/>} |
-| associateFormConfig           | 关联表单配置                       | Object  | {<br/>//此项为false，后设置两项均无效<br/>    enable:false,  <br/>   isView: true,<br/>    isCreate: true,<br/>} |
-| associateFormDataOptions      | 关联表单动态数据       | Array   |                                                              |
-| assigneeDataSource            | 分配到任务的人动态数据        | Array   | [<br/>    "#{approval}",<br/>    "${approverId}",<br/>    "${INITIATOR}"<br/>] |
-| dueDateDataSource             | 过期时间动态数据           | Array   | ["${dueDate}"]                                               |
-| followUpDateDataSource        | 观察时间动态数据           | Array   | ["${followUpDate}"]                                          |
-| initiatorDataSource           | 【开始节点】发起人动态数据         | Array   | ["initiator"]                                                |
-| skipExpressionDataSource      | 跳过表达式动态数据      | Array   | []                                                           |
-| conditionExpressionDataSource | 跳转动态数据 | Array   | []                                                           |
+| filters                       | panel filter attributes                       | Array   | []                                                           |
+| showInitiator                 | Whether the initiator is displayed in the assignee (fixed mode) | Boolean | true                                                         |
+| initiator                     | assignee display content | Object  | {<br/>    label: "流程发起人",<br/>    value: "${INITIATOR}"<br/>} |
+| associateFormConfig           | associate form config                         | Object  | {<br/>//此项为false，后设置两项均无效<br/>    enable:false,  <br/>   isView: true,<br/>    isCreate: true,<br/>} |
+| associateFormDataOptions      | associate form auto complete dataSource       | Array   |                                                              |
+| assigneeDataSource            | assignee auto complete dataSource             | Array   | [<br/>    "#{approval}",<br/>    "${approverId}",<br/>    "${INITIATOR}"<br/>] |
+| dueDateDataSource             | due date auto complete dataSource             | Array   | ["${dueDate}"]                                               |
+| followUpDateDataSource        | follow up auto complete dataSource            | Array   | ["${followUpDate}"]                                          |
+| initiatorDataSource           | initiator auto complete dataSource            | Array   | ["initiator"]                                                |
+| skipExpressionDataSource      | skip expression auto complete dataSource      | Array   | []                                                           |
+| conditionExpressionDataSource | condition expression auto complete dataSource | Array   | []                                                           |
 
 
-> 面板部分使用Ant Design Vue的AutoComplete 自动完成组件来提高使用便携性，为提高扩展性，可以自行配置自动完成的数据，默认数据如表
 
 
-#### 过滤属性
+#### filtering
 ```javascript
 filters: {
   type: Array,
   default: () => []
 }
 ```
-参数列表
-> 包含在参数列表的可以通过filters配置隐藏参数配置
-
+Parameter List
 
 | 选项              | 过滤字段            |
 | ----------------- | ------------------- |
@@ -311,15 +303,15 @@ filters: {
 | 过期时间          | dueDate             |
 | 观察时间          | followUpDate        |
 
-## iframe 部署 🎪
+## Iframe Deployment 🎪
 
-如果你的项目是 jquery 或 react 类项目，可以通过 iframe 的方式集成该流程设计器
+If your project is a `jquery` or `react` project, you can integrate the workflow designer by means of an iframe
 
-本仓库通过 github pages 部署了静态页面，使用 jsdelivr 做 cdn ，国内访问也非常快速，所以你可以直接集成本仓库的页面，因为全部白嫖了 github 的资源，没有自己建服务器维护，所以不用担心资源失效问题。
+This repository deployed a static page by the github pages, using `jsdelivr` cdn, access in China is also very fast, so you can directly integrate the pages of this repository, because all the free github resources are used, did not build their own server maintenance, so do not worry about the failure of resources.
 
-当然你也可以在 `docs/lib` 文件夹下下载对应的版本，进行本地部署。
+Of course you can also download the corresponding version from the `docs/lib` folder for local deployment.
 
-集成方式如下（ps：可直接拷贝以下代码到一个html文件中试一下）：
+The integration method is as follows (ps: you can copy the following code directly into an html file and try it out)
 
 ```html
 <!DOCTYPE html>
@@ -335,30 +327,30 @@ filters: {
 
     <script>
       let myFrame = document.getElementById("myFrame");
-      // 获取到流程详情
+      // Get details
       window.addEventListener("message", (event) => {
         console.log(event.data); // { xml: 'xxx', img: 'xxx', process: {} }
       });
       myFrame.onload = () => {
         let postMsg = {
-          xml: "", // 后端查询到的xml，新建则为空串
+          xml: "", // Query the xml
           users: [
-            { name: "张三1", id: "zhangsan" },
-            { name: "李四1", id: "lisi" },
-            { name: "王五1", id: "wangwu" },
+            { name: "The Beatles", id: "1" },
+            { name: "The Rolling Stones", id: "2" },
+            { name: "Pink Floyed", id: "3" },
           ],
           groups: [
-            { name: "web组1", id: "web" },
-            { name: "java组1", id: "java" },
-            { name: "python组1", id: "python" },
+            { name: "Folk Music", id: "4" },
+            { name: "Rock Music", id: "5" },
+            { name: "Classical Music", id: "6" },
           ],
           categorys: [
-            { name: "OA1", id: "oa" },
-            { name: "财务1", id: "finance" },
+            { name: "Music", id: "7" },
+            { name: "Articles", id: "8" },
           ],
           isView: false
         }
-        // 设置初始化值
+        // Set initialization value
         myFrame.contentWindow.postMessage(postMsg, "*")
       }
     </script>
@@ -366,11 +358,14 @@ filters: {
 </html>
 ```
 
-## 关于定制 🛠
+## Customization 🛠
 
-本组件对标的是 flowable 官方设计器，也就是实现 flowable 的 xml 规则标准，里面所用名词也都是官方文档中的专业术语。所以这个组件只是程序员在开发阶段，自己建模导出 xml 的工具，试图定制该建模器的行为都是不对的，不要把业务带到建模器中来！自己的业务应该另行开发增删改查来实现。
+This component is aligned to the official flowable designer, which is the standard for implementing flowable's xml rules, and the terms used in it are all terminology from the official documentation. So this component is just a tool for programmers to model and export xml by themselves during the development phase, and it is wrong to try to customize the behavior of this modeler. Your own business should be developed separately to implement it.
 
-该组件未来也不会升级 UI 库和 vue。不管库是否兼容，通过 iframe 的方式集成建模器才是最简单正确的方式。
+The component will not upgrade the UI library or vue in the future, and regardless of library compatibility, integrating the modeler via an iframe is the easiest and correct way to do it.
+
+## Sponsor 🧡
+
 
 ## License 📄
 
