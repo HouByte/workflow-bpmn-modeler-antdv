@@ -1,8 +1,8 @@
 {
-  "name": "workflow-bpmn-modeler",
-  "version": "0.2.8",
-  "description": "基于 `vue` 和 `bpmn.io@7.0` ，实现 flowable 的 modeler 模型设计器",
-  "main": "dist/workflow-bpmn-modeler.umd.min.js",
+  "name": "workflow-bpmn-modeler-antdv",
+  "version": "1.0.0",
+  "description": "基于 `vue` 和 `bpmn.io@7.0` ，实现 flowable 的 modeler 模型设计器 Antdv版",
+  "main": "dist/workflow-bpmn-modeler-antdv.umd.min.js",
   "scripts": {
     "dev": "vue-cli-service serve --open",
     "demo": "cross-env NODE_ENV=demo vue-cli-service build",
@@ -18,29 +18,30 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GoldSubmarine/workflow-bpmn-modeler.git"
+    "url": "git+https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv.git"
   },
   "keywords": [
     "vue",
-    "element-ui",
+    "Ant Design Vue",
+    "antdv",
     "flowable",
+    "bpmn.js",
     "模型设计器"
   ],
   "author": {
-    "name": "charles",
-    "email": "997462392@qq.com"
+    "name": "Vincent-Vic",
+    "email": "vincent-vic@qq.com"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/GoldSubmarine/workflow-bpmn-modeler/issues"
+    "url": "https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv/issues"
   },
   "dependencies": {
     "ant-design-vue": "^1.7.6",
     "bpmn-js": "^7.2.1",
     "viser-vue": "^2.4.8",
     "vue": "^2.6.10",
-    "vue-codemirror": "^4.0.6",
-    "xcrud": "0.4.1"
+    "vue-codemirror": "^4.0.6"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.4.6",
