@@ -88,6 +88,8 @@
                  :initiator-data-source="initiatorDataSource"
                  :skip-expression-data-source="skipExpressionDataSource"
                  :condition-expression-data-source="conditionExpressionDataSource"
+                 @showForm="showAssociateForm"
+                 @createForm="createAssociateForm"
           />
         </a-layout-sider>
       </a-layout>
@@ -195,14 +197,7 @@ export default {
       }
     },
     associateFormConfig:{
-      type:Object,
-      default:() => {
-        return {
-          enable:false, //此项为false，后设置两项均无效
-          isView: true,
-          isCreate: true,
-        }
-      }
+      type:Object
     },
     associateFormDataOptions: {
       type: Array,
@@ -497,6 +492,12 @@ export default {
       a.download = filename
       a.click()
       window.URL.revokeObjectURL(url)
+    },
+    showAssociateForm(formKey){
+      this.$emit("showForm",formKey)
+    },
+    createAssociateForm(){
+      this.$emit("createForm")
     }
   }
 }

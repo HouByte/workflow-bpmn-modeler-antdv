@@ -112,6 +112,12 @@ export default {
     },
     filter(name){
       return this.filters.indexOf(name) !== -1
+    },
+    showAssociateForm(formKey){
+      this.$emit("showForm",formKey)
+    },
+    createAssociateForm(){
+      this.$emit("createForm")
     }
   },
   computed: {

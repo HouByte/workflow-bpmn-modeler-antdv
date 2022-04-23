@@ -20,11 +20,24 @@
         :skip-expression-data-source="skipExpressionDataSource"
         :condition-expression-data-source="conditionExpressionDataSource"
         @save="saveModeler"
+        @showForm="showAssociateForm"
+        @createForm="createAssociateForm"
     >
       <div slot="action">
         <a-button>扩展按钮示例</a-button>
       </div>
     </bpmn-modeler>
+
+    <a-modal v-model:visible="formShowVisible" title="显示表单" width="400px">
+      <template #footer>
+      </template>
+      【显示表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
+    <a-modal v-model:visible="formCreateVisible" title="创建表单" width="400px">
+      <template #footer>
+      </template>
+      【创建表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
   </div>
 </template>
 
@@ -83,8 +96,8 @@ export default {
         value: "${INITIATOR}"
       },
       associateFormConfig:{
-        enable:false, //此项为false，后设置两项均无效
-        isView: true,
+        enable:true, //此项为false，后设置两项均无效
+        isPreview: true,
         isCreate: true,
       },
       associateFormDataOptions: [],
@@ -93,7 +106,11 @@ export default {
       followUpDateDataSource: ["${followUpDate}"],
       initiatorDataSource: ["initiator"],
       skipExpressionDataSource: [],
-      conditionExpressionDataSource: ['${approve}','${!approve}']
+      conditionExpressionDataSource: ['${approve}','${!approve}'],
+
+      //关联表单扩展，用于接入flowable动态表单或其他自定义动态表单
+      formShowVisible: false,
+      formCreateVisible:false
     }
   },
   mounted() {
@@ -110,6 +127,14 @@ export default {
     },
     saveModeler(data) {
       console.log(data)
+    },
+    showAssociateForm(formKey){
+      console.log(formKey)
+      this.formShowVisible = true;
+    },
+    createAssociateForm(){
+      console.log("create form")
+      this.formCreateVisible = true;
     }
   }
 }

@@ -80,10 +80,10 @@
       </a-form-model-item>
       <a-form-model-item label=" " :colon="false" v-show="!!showConfig.formKey && associateFormConfig.enable && (associateFormConfig.isPreview || associateFormConfig.isCreate)"  v-if="!filter('formKey')">
         <a-space>
-          <a-button type="primary" v-if="associateFormConfig.isPreview">
+          <a-button type="primary" @click="showAssociateForm(formData.formKey)" v-if="associateFormConfig.isPreview">
             查看表单
           </a-button>
-          <a-button type="primary" v-if="associateFormConfig.isCreate">
+          <a-button type="primary" @click="createAssociateForm" v-if="associateFormConfig.isCreate">
             创建表单
           </a-button>
         </a-space>

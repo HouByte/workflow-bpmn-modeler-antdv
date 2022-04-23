@@ -20,6 +20,8 @@
       :initiator-data-source="initiatorDataSource"
       :skip-expression-data-source="skipExpressionDataSource"
       :condition-expression-data-source="conditionExpressionDataSource"
+      @showForm="showAssociateForm"
+      @createForm="createAssociateForm"
     />
   </div>
 </template>
@@ -48,10 +50,7 @@ export default {
       default: () => {}
     },
     associateFormConfig:{
-      type:Object,
-      default:() => {
-        return {}
-      }
+      type:Object
     },
     associateFormDataOptions: {
       type: Array,
@@ -190,6 +189,12 @@ export default {
           })
         }
       })
+    },
+    showAssociateForm(formKey){
+      this.$emit("showForm",formKey)
+    },
+    createAssociateForm(){
+      this.$emit("createForm")
     }
   }
 }
