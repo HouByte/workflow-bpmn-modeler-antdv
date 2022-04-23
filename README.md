@@ -2,13 +2,17 @@
 
 # workflow-bpmn-modeler-antdv
 
-[![NPM Version](http://img.shields.io/npm/v/workflow-bpmn-modeler.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler)
-[![NPM Downloads](https://img.shields.io/npm/dm/workflow-bpmn-modeler.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler)
+[![NPM Version](http://img.shields.io/npm/v/workflow-bpmn-modeler-antdv.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler-antdv)
+[![NPM Downloads](https://img.shields.io/npm/dm/workflow-bpmn-modeler-antdv.svg?style=flat)](https://www.npmjs.org/package/workflow-bpmn-modeler-antdv)
 ![](https://img.shields.io/badge/license-MIT-000000.svg)
 
 🔥 本项目基于 `vue` 和 `bpmn.io@7.0` ，实现 flowable 的工作流设计器
+
 🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 进行了Ant Design Vue的适配，初始版本基于0.2.8发展适配为antdv下的1.0.0版本
+
 🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 如果需要Element UI版本可以直接访问原仓库
+
+> 代码取出XFORM组件，整体改的有点冗余，前端功底较差
 
 ## 预览 📟
 
@@ -28,7 +32,7 @@ npm i workflow-bpmn-modeler-antdv
 ```
 
 ## 使用说明 👣
-#### 简单例子
+### 简单例子 👣
 ```vue
 <template>
   <div>
@@ -83,7 +87,7 @@ export default {
 </script>
 ```
 
-#### 完整示例
+### 完整示例 👣
 ```vue
 <template>
   <div id="app">
@@ -107,11 +111,24 @@ export default {
         :skip-expression-data-source="skipExpressionDataSource"
         :condition-expression-data-source="conditionExpressionDataSource"
         @save="saveModeler"
+        @showForm="showAssociateForm"
+        @createForm="createAssociateForm"
     >
       <div slot="action">
         <a-button>扩展按钮示例</a-button>
       </div>
     </bpmn-modeler>
+
+    <a-modal v-model:visible="formShowVisible" title="显示表单" width="400px">
+      <template #footer>
+      </template>
+      【显示表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
+    <a-modal v-model:visible="formCreateVisible" title="创建表单" width="400px">
+      <template #footer>
+      </template>
+      【创建表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
   </div>
 </template>
 
@@ -170,8 +187,8 @@ export default {
         value: "${INITIATOR}"
       },
       associateFormConfig:{
-        enable:false, //此项为false，后设置两项均无效
-        isView: true,
+        enable:true, //此项为false，后设置两项均无效
+        isPreview: true,
         isCreate: true,
       },
       associateFormDataOptions: [],
@@ -180,7 +197,11 @@ export default {
       followUpDateDataSource: ["${followUpDate}"],
       initiatorDataSource: ["initiator"],
       skipExpressionDataSource: [],
-      conditionExpressionDataSource: ['${approve}','${!approve}']
+      conditionExpressionDataSource: ['${approve}','${!approve}'],
+
+      //关联表单扩展，用于接入flowable动态表单或其他自定义动态表单
+      formShowVisible: false,
+      formCreateVisible:false
     }
   },
   mounted() {
@@ -188,7 +209,7 @@ export default {
   },
   methods: {
     getModelDetail() {
-      fetch('https://cdn.jsdelivr.net/gh/goldsubmarine/workflow-bpmn-modeler@master/src/Leave.bpmn20.xml')
+      fetch('https://cdn.jsdelivr.net/gh/Vincent-Vic/workflow-bpmn-modeler-antdv@master/src/Leave.bpmn20.xml')
           .then(response => {
             return response.text()
           }).then(xml => {
@@ -197,6 +218,14 @@ export default {
     },
     saveModeler(data) {
       console.log(data)
+    },
+    showAssociateForm(formKey){
+      console.log(formKey)
+      this.formShowVisible = true;
+    },
+    createAssociateForm(){
+      console.log("create form")
+      this.formCreateVisible = true;
     }
   }
 }
@@ -213,8 +242,8 @@ html, body, #app {
 > 内容参数均为选用，无需任何参数也可以使用，根据实际情况配置
 
 
-## 组件参数
-### 主要参数
+## 组件参数 👣
+### 主要参数 👣
 
 
 | Attributes        | describe            | structure                                                    | type    | default |
@@ -253,7 +282,7 @@ html, body, #app {
 }
 ```
 
-### 面板参数
+### 面板参数 👣
 
 | Attributes                    | describe                                      | type    | default                                                      |
 | ----------------------------- | --------------------------------------------- | ------- | ------------------------------------------------------------ |
@@ -273,7 +302,7 @@ html, body, #app {
 > 面板部分使用Ant Design Vue的AutoComplete 自动完成组件来提高使用便携性，为提高扩展性，可以自行配置自动完成的数据，默认数据如表
 
 
-#### 过滤属性
+#### 过滤属性 👣
 ```javascript
 filters: {
   type: Array,
@@ -310,6 +339,15 @@ filters: {
 | 类                | class               |
 | 过期时间          | dueDate             |
 | 观察时间          | followUpDate        |
+
+## 事件 👣
+|  事件名称  | 参数                                                         | 描述                 |
+| :--------: | ------------------------------------------------------------ | :------------------- |
+|    save    | {<br/>    "process":{<br/>        "id":"",<br/>        "category":"",<br/>        "name":""<br/>    },<br/>    "svg":"",<br/>    "xml":""<br/>} | 保存按钮触发事件     |
+|  showForm  | formKey                                                      | 显示挂载表单点击事件 |
+| createForm |                                                              | 创建表单点击事件     |
+
+
 
 ## iframe 部署 🎪
 
