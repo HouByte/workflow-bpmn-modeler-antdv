@@ -345,6 +345,27 @@ filters: {
 | 过期时间          | dueDate             |
 | 观察时间          | followUpDate        |
 
+### 组件栏 👣
+#### 过滤属性 👣
+paletteFilters 设置可以将操作栏组件隐藏
+| 选项     | 过滤字段                    |
+| -------- | --------------------------- |
+| 抓手     | hand-tool                   |
+| 套索     | lasso-tool                  |
+| 空间     | space-tool                  |
+| 连接     | global-connect-tool         |
+| 开始     | create.start-event          |
+| 中间     | create.intermediate-event   |
+| 结束     | create.end-event            |
+| 网关     | create.exclusive-gateway    |
+| 任务     | create.task                 |
+| 子流程   | create.subprocess-expanded  |
+| 数据对象 | create.data-object          |
+| 数据存储 | create.data-store           |
+| 扩展存储 | create.participant-expanded |
+| 分组     | create.group                |
+
+
 ## 事件 👣
 |  事件名称  | 参数                                                         | 描述                 |
 | :--------: | ------------------------------------------------------------ | :------------------- |

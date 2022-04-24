@@ -10,9 +10,26 @@ export default class BpmData {
   init() {
     this.controls = [
       {
+        action: 'hand-tool',
+        title: '抓手'
+      },
+      {
+        action: 'lasso-tool',
+        title: '套索'
+      },
+      {
+        action: 'space-tool',
+        title: '空间'
+      },
+      {
+        action: 'global-connect-tool',
+        title: '连接'
+      },
+      {
         action: 'create.start-event',
         title: '开始'
       },
+
       {
         action: 'create.intermediate-event',
         title: '中间'

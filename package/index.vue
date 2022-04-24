@@ -74,7 +74,7 @@
         </a-layout-content>
         <a-layout-sider style="background: #fff;min-width: 400px;">
           <panel v-if="modeler"
-                 :filters="filters"
+                 :filters="panelFilters"
                  :modeler="modeler"
                  :users="users"
                  :groups="groups"
@@ -134,8 +134,17 @@ export default {
   },
   props: {
     //过滤面板参数
-    filters: {
+    panelFilters: {
       type: Array
+    },
+    paletteToolShow:{
+      type:Boolean,
+      default:()=> true
+    },
+    //控制过滤
+    paletteFilters: {
+      type: Array,
+      default:()=>[]
     },
     rightActionConfig:{
       type: Object,
@@ -341,7 +350,11 @@ export default {
         }
         const palette = djsPalette.children[0]
         const allGroups = palette.children
-        allGroups[0].style['display'] = 'none'
+        //是否隐藏工具栏
+        if (!this.paletteToolShow){
+          allGroups[0].style['display'] = 'none'
+        }
+
         // 修改控件样式
         for (var gKey in allGroups) {
           const group = allGroups[gKey]
@@ -367,6 +380,12 @@ export default {
               }</div>`
               for (var csKey in controlStyle) {
                 control.style[csKey] = controlStyle[csKey]
+              }
+
+              //过滤扩展栏
+              if (this.paletteFilters.indexOf(control.dataset.action) !== -1){
+                control.style['display'] = 'none'
+                continue
               }
             }
           }

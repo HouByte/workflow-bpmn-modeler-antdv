@@ -8,7 +8,9 @@
         :categories="categories"
         :is-view="false"
 
-        :filters="filters"
+        :paletteToolShow="paletteToolShow"
+        :panelFilters="panelFilters"
+        :paletteFilters="paletteFilters"
         :show-initiator="showInitiator"
         :initiator="initiator"
         :associate-form-config="associateFormConfig"
@@ -71,8 +73,12 @@ export default {
         { name: '财务', id: 'finance' }
       ],
       //过滤面板参数，参数见文档
-      filters: [],
-      //filters: ['category','message'],
+      panelFilters: [],
+      //panelFilters: ['category','message'],
+      //组件栏过滤，过滤参数见文档
+      //paletteFilters:['space-tool','create.start-event','create.task'],
+      paletteFilters:[],
+      paletteToolShow:true,//设置false组件的操作栏将被隐藏
       rightActionConfig: {
         'showCode': {
           'show': true,
@@ -123,7 +129,7 @@ export default {
   },
   methods: {
     getModelDetail() {
-      fetch('https://cdn.jsdelivr.net/gh/Vincent-Vic/workflow-bpmn-modeler@master/src/Leave.bpmn20.xml')
+      fetch('https://cdn.jsdelivr.net/gh/Vincent-Vic/workflow-bpmn-modeler-antdv@master/src/Leave.bpmn20.xml')
           .then(response => {
             return response.text()
           }).then(xml => {
