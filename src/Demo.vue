@@ -23,8 +23,13 @@
         @showForm="showAssociateForm"
         @createForm="createAssociateForm"
     >
-      <div slot="action">
-        <a-button>扩展按钮示例</a-button>
+      <!--左边扩展按钮示例-->
+      <div slot="header-left">
+        <a-button>左边扩展</a-button>
+      </div>
+      <!--右边扩展按钮示例-->
+      <div slot="header-right">
+        <a-button>右边扩展</a-button>
       </div>
     </bpmn-modeler>
 
@@ -118,7 +123,7 @@ export default {
   },
   methods: {
     getModelDetail() {
-      fetch('https://cdn.jsdelivr.net/gh/goldsubmarine/workflow-bpmn-modeler@master/src/Leave.bpmn20.xml')
+      fetch('https://cdn.jsdelivr.net/gh/Vincent-Vic/workflow-bpmn-modeler@master/src/Leave.bpmn20.xml')
           .then(response => {
             return response.text()
           }).then(xml => {

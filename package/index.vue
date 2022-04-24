@@ -48,10 +48,11 @@
                 <i class="iconfont icon-right"></i>
               </a-button>
             </a-tooltip>
+            <slot name="header-left"></slot>
 
           </a-space>
           <a-space>
-            <slot name="action"></slot>
+            <slot name="header-right"></slot>
             <a-button @click="showXML" v-if="rightActionConfig.showCode?rightActionConfig.showCode.show:false">
               <i class="iconfont icon-browse" v-if="rightActionConfig.showCode.icon"></i>{{ rightActionConfig.showCode.label }}
             </a-button>
@@ -68,7 +69,7 @@
         </div>
       </a-layout-header>
       <a-layout style="align-items: stretch;">
-        <<a-layout-content style="padding: 0;margin-top: 10px;">
+        <a-layout-content style="padding: 0;margin-top: 10px;">
           <div ref="canvas" class="canvas" />
         </a-layout-content>
         <a-layout-sider style="background: #fff;min-width: 400px;">

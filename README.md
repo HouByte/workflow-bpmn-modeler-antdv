@@ -8,7 +8,7 @@
 
 🔥 本项目基于 `vue` 和 `bpmn.io@7.0` ，实现 flowable 的工作流设计器
 
-🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 进行了Ant Design Vue的适配，初始版本基于0.2.8发展适配为antdv下的1.0.0版本
+🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 进行了Ant Design Vue的适配，初始版本基于0.2.8发展适配为antdv下的1.0.1版本
 
 🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 如果需要Element UI版本可以直接访问原仓库
 
@@ -114,8 +114,13 @@ export default {
         @showForm="showAssociateForm"
         @createForm="createAssociateForm"
     >
-      <div slot="action">
-        <a-button>扩展按钮示例</a-button>
+      <!--左边扩展按钮示例-->
+      <div slot="header-left">
+        <a-button>左边扩展</a-button>
+      </div>
+      <!--右边扩展按钮示例-->
+      <div slot="header-right">
+        <a-button>右边扩展</a-button>
       </div>
     </bpmn-modeler>
 
