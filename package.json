@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv.git"
+    "url": "git+https://github.com/Vincent-Vic/workflow-bpmn-modeler-antdv.git"
   },
   "keywords": [
     "vue",
@@ -34,7 +34,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv/issues"
+    "url": "https://github.com/Vincent-Vic/workflow-bpmn-modeler-antdv/issues"
   },
   "dependencies": {
     "ant-design-vue": "^1.7.6",

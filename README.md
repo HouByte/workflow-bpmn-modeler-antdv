@@ -1,4 +1,4 @@
-[English](./README_EN.md) | 简体中文
+[English](./README_EN.md) | 简体中文 | [GitHub](https://github.com/Vincent-Vic/workflow-bpmn-modeler-antdv) | [Gitee](https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv)
 
 # workflow-bpmn-modeler-antdv
 
@@ -12,7 +12,7 @@
 
 🔥 本项目基于 [workflow-bpmn-modeler](https://github.com/GoldSubmarine/workflow-bpmn-modeler) 如果需要Element UI版本可以直接访问原仓库
 
-> 代码取出XFORM组件，整体改的有点冗余，前端功底较差
+> 本项目代码去除原有表单XFORM组件，整体改的有点冗余，前端功底较差
 
 ## 预览 📟
 

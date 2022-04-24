@@ -1,4 +1,4 @@
-English | [简体中文](./README.md)
+English | [简体中文](./README.md) | [GitHub](https://github.com/Vincent-Vic/workflow-bpmn-modeler-antdv) | [Gitee](https://gitee.com/Vincent-Vic/workflow-bpmn-modeler-antdv)
 
 # workflow-bpmn-modeler
 
