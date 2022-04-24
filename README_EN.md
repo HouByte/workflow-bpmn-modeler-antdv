@@ -375,7 +375,7 @@ The integration method is as follows (ps: you can copy the following code direct
 <html lang="en">
   <body>
     <iframe
-      src="https://goldsubmarine.github.io/workflow-bpmn-modeler/cdn/0.2.8/"
+      src="https://vincent-vic.github.io/workflow-bpmn-modeler-antdv/cdn/1.0.1/"
       id="myFrame"
       frameborder="0"
       width="100%"
