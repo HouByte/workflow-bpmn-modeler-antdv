@@ -99,7 +99,9 @@ export default {
         :categories="categories"
         :is-view="false"
 
-        :filters="filters"
+        :paletteToolShow="paletteToolShow"
+        :panelFilters="panelFilters"
+        :paletteFilters="paletteFilters"
         :show-initiator="showInitiator"
         :initiator="initiator"
         :associate-form-config="associateFormConfig"
@@ -162,8 +164,12 @@ export default {
         { name: '财务', id: 'finance' }
       ],
       //过滤面板参数，参数见文档
-      filters: [],
-      //filters: ['category','message'],
+      panelFilters: [],
+      //panelFilters: ['category','message'],
+      //组件栏过滤，过滤参数见文档
+      //paletteFilters:['space-tool','create.start-event','create.task'],
+      paletteFilters:[],
+      paletteToolShow:true,//设置false组件的操作栏将被隐藏
       rightActionConfig: {
         'showCode': {
           'show': true,
@@ -242,7 +248,6 @@ html, body, #app {
   margin: 0;
 }
 </style>
-
 ```
 > 内容参数均为选用，无需任何参数也可以使用，根据实际情况配置
 

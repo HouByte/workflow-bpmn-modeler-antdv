@@ -93,7 +93,9 @@ export default {
         :categories="categories"
         :is-view="false"
 
-        :filters="filters"
+        :paletteToolShow="paletteToolShow"
+        :panelFilters="panelFilters"
+        :paletteFilters="paletteFilters"
         :show-initiator="showInitiator"
         :initiator="initiator"
         :associate-form-config="associateFormConfig"
@@ -105,11 +107,29 @@ export default {
         :skip-expression-data-source="skipExpressionDataSource"
         :condition-expression-data-source="conditionExpressionDataSource"
         @save="saveModeler"
+        @showForm="showAssociateForm"
+        @createForm="createAssociateForm"
     >
-      <div slot="action">
-        <a-button>扩展按钮示例</a-button>
+      <!--左边扩展按钮示例-->
+      <div slot="header-left">
+        <a-button>左边扩展</a-button>
+      </div>
+      <!--右边扩展按钮示例-->
+      <div slot="header-right">
+        <a-button>右边扩展</a-button>
       </div>
     </bpmn-modeler>
+
+    <a-modal v-model:visible="formShowVisible" title="显示表单" width="400px">
+      <template #footer>
+      </template>
+      【显示表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
+    <a-modal v-model:visible="formCreateVisible" title="创建表单" width="400px">
+      <template #footer>
+      </template>
+      【创建表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
+    </a-modal>
   </div>
 </template>
 
@@ -138,8 +158,12 @@ export default {
         { name: '财务', id: 'finance' }
       ],
       //过滤面板参数，参数见文档
-      filters: [],
-      //filters: ['category','message'],
+      panelFilters: [],
+      //panelFilters: ['category','message'],
+      //组件栏过滤，过滤参数见文档
+      //paletteFilters:['space-tool','create.start-event','create.task'],
+      paletteFilters:[],
+      paletteToolShow:true,//设置false组件的操作栏将被隐藏
       rightActionConfig: {
         'showCode': {
           'show': true,
@@ -168,8 +192,8 @@ export default {
         value: "${INITIATOR}"
       },
       associateFormConfig:{
-        enable:false, //此项为false，后设置两项均无效
-        isView: true,
+        enable:true, //此项为false，后设置两项均无效
+        isPreview: true,
         isCreate: true,
       },
       associateFormDataOptions: [],
@@ -178,7 +202,11 @@ export default {
       followUpDateDataSource: ["${followUpDate}"],
       initiatorDataSource: ["initiator"],
       skipExpressionDataSource: [],
-      conditionExpressionDataSource: ['${approve}','${!approve}']
+      conditionExpressionDataSource: ['${approve}','${!approve}'],
+
+      //关联表单扩展，用于接入flowable动态表单或其他自定义动态表单
+      formShowVisible: false,
+      formCreateVisible:false
     }
   },
   mounted() {
@@ -186,7 +214,7 @@ export default {
   },
   methods: {
     getModelDetail() {
-      fetch('https://cdn.jsdelivr.net/gh/goldsubmarine/workflow-bpmn-modeler@master/src/Leave.bpmn20.xml')
+      fetch('https://cdn.jsdelivr.net/gh/Vincent-Vic/workflow-bpmn-modeler-antdv@master/src/Leave.bpmn20.xml')
           .then(response => {
             return response.text()
           }).then(xml => {
@@ -195,6 +223,14 @@ export default {
     },
     saveModeler(data) {
       console.log(data)
+    },
+    showAssociateForm(formKey){
+      console.log(formKey)
+      this.formShowVisible = true;
+    },
+    createAssociateForm(){
+      console.log("create form")
+      this.formCreateVisible = true;
     }
   }
 }
@@ -267,9 +303,9 @@ rightActionConfig default
 
 
 
-#### filtering
+#### panel filtering
 ```javascript
-filters: {
+panelFilters: {
   type: Array,
   default: () => []
 }
@@ -302,6 +338,27 @@ Parameter List
 | 类                | class               |
 | 过期时间          | dueDate             |
 | 观察时间          | followUpDate        |
+
+### palette 👣
+#### palette filtering 👣
+paletteFilters 设置可以将操作栏组件隐藏
+| 选项     | 过滤字段                    |
+| -------- | --------------------------- |
+| 抓手     | hand-tool                   |
+| 套索     | lasso-tool                  |
+| 空间     | space-tool                  |
+| 连接     | global-connect-tool         |
+| 开始     | create.start-event          |
+| 中间     | create.intermediate-event   |
+| 结束     | create.end-event            |
+| 网关     | create.exclusive-gateway    |
+| 任务     | create.task                 |
+| 子流程   | create.subprocess-expanded  |
+| 数据对象 | create.data-object          |
+| 数据存储 | create.data-store           |
+| 扩展存储 | create.participant-expanded |
+| 分组     | create.group                |
+
 
 ## Iframe Deployment 🎪
 
