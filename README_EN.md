@@ -10,7 +10,7 @@ English | [简体中文](./README.md) | [GitHub](https://github.com/Vincent-Vic/
 
 ## Preview 📟
 
-![20200930030243](https://cdn.jsdelivr.net/gh/goldsubmarine/cdn@master/blog/20200930030243.png)
+![1.0.2](https://cdn.jsdelivr.net/gh/Vincent-Vic/image@master/workflow-bpmn-modeler-antdv/1.0.2.png)
 
 ## Online demo 📢
 
