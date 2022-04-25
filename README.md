@@ -31,6 +31,26 @@ yarn add workflow-bpmn-modeler-antdv
 npm i workflow-bpmn-modeler-antdv
 ```
 
+## 更新日志
+1.0.1 更新说明
+- 基于workflow-bpmn-modeler适配为Ant design vue版本，功能大致相同
+- 修复信号bug
+- 添加消息
+安装后引入
+```vue
+import bpmnModeler from 'workflow-bpmn-modeler-antdv/package/';
+```
+1.0.2 更新说明
+- 优化依赖
+- 分类支持树状结构
+- 优化面板显示
+- 调整分配部分逻辑
+  安装后引入
+```vue
+import bpmnModeler from 'workflow-bpmn-modeler-antdv';
+```
+
+> 文档建议参考代码仓库为准
 ## 使用说明 👣
 ### 简单例子 👣
 ```vue
