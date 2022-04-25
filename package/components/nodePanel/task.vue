@@ -21,39 +21,57 @@
           <a-button type="default" @click="taskListenerVisible = true"> 编辑 </a-button>
         </a-badge>
       </a-form-model-item>
-      <a-form-model-item label="人员类型" prop="userType"  v-show="!!showConfig.userType">
-        <a-select v-model="formData.userType" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}">
+      <a-form-model-item label="分配" prop="userType"  v-show="!!showConfig.userType">
+        <a-select v-model="formData.userType" placeholder="请选择人员类型" allow-clear :style="{width: '100%'}" @change="handleUserTypeChange">
           <a-select-option v-for="(item, index) in userTypeOptions" :key="index" :value="item.value"
                            :disabled="item.disabled">{{item.label}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="指定方式" prop="dataType"  v-show="!!showConfig.userType && formData.userType === 'assignee'">
-        <a-radio-group :options="modeOptions" v-model:value="formData.dataType"/>
+      <a-form-model-item label="指定方式" prop="dataType"  v-show="!!showConfig.dataType && formData.userType !== 'initiator'">
+        <a-radio-group v-model="formData.dataType" @change="handleClearAssignee">
+          <a-radio-button value="fixed">
+            固定
+          </a-radio-button>
+          <a-radio-button value="dynamic">
+            动态
+          </a-radio-button>
+        </a-radio-group>
       </a-form-model-item>
       <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='fixed' && formData.userType === 'assignee'">
         <a-select v-model="formData.assignee" placeholder="请委派指定人员" allow-clear :style="{width: '100%'}">
-          <a-select-option :value="initiator.value" v-if="showInitiator">
-            {{ initiator.label }}
-          </a-select-option>
           <a-select-option v-for="(item, index) in users" :key="index" :value="item.id"
                            :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="指定人员" prop="assignee" v-show="!!showConfig.assignee &&formData.dataType && formData.dataType =='dynamic' && formData.userType === 'assignee'">
-        <a-auto-complete v-model="formData.assignee" placeholder="请委派指定人员表达式" :data-source="assigneeDataSource"
+        <a-auto-complete v-model="formData.assignee" placeholder="指定人员表达式" :data-source="assigneeDataSource"
                          filter-option allow-clear />
       </a-form-model-item>
-      <a-form-model-item label="候选人员" prop="candidateUsers" v-show="!!showConfig.assignee && formData.userType === 'candidateUsers'">
+      <a-form-model-item label="候选人员" prop="candidateUsers" v-show="!!showConfig.candidateUsers && formData.userType === 'candidateUsers'&& formData.dataType =='fixed'">
         <a-select v-model="formData.candidateUsers" placeholder="请选择候选人员" mode='multiple' allow-clear
                   :style="{width: '100%'}">
           <a-select-option v-for="(item, index) in users" :key="index" :value="item.id"
                            :disabled="item.disabled">{{item.name}}</a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="候选组" prop="candidateGroups" v-show="!!showConfig.candidateGroups && formData.userType === 'candidateGroups'">
-        <a-select v-model="formData.candidateGroups" placeholder="请选择候选组" allow-clear :style="{width: '100%'}">
+      <a-form-model-item label="候选人员" prop="candidateUsers" v-show="!!showConfig.candidateUsers &&formData.dataType && formData.dataType =='dynamic' && formData.userType === 'candidateUsers'">
+        <a-select  v-model="formData.candidateUsers" mode="tags" :token-separators="[',']" style="width: 100%" placeholder="候选人员表达式">
+          <a-select-option  v-for="(item,index) in candidateUserDataSource" :value="item" :key="index">
+            {{item}}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="候选组" prop="candidateGroups" v-show="!!showConfig.candidateGroups && formData.userType === 'candidateGroups'&& formData.dataType =='fixed'">
+        <a-select v-model="formData.candidateGroups" placeholder="请选择候选组" mode='multiple' allow-clear :style="{width: '100%'}">
           <a-select-option v-for="(item, index) in groups" :key="index" :value="item.id"
                            :disabled="item.disabled">{{item.name}}</a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="候选组" prop="candidateGroups" v-show="!!showConfig.candidateGroups &&formData.dataType && formData.dataType =='dynamic' && formData.userType === 'candidateGroups'">
+        <a-select v-model="formData.candidateGroups" mode="tags" :token-separators="[',']" style="width: 100%" placeholder="候选组表达式">
+          <a-select-option  v-for="(item,index) in candidateGroupDataSource" :value="item" :key="index">
+            {{item}}
+          </a-select-option>
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="多实例" prop="multiInstance"  v-if="!filter('multiInstance')">
@@ -171,7 +189,7 @@ import mixinExecutionListener from '../../common/mixinExecutionListener'
 import taskListener from './property/taskListener'
 import multiInstance from './property/multiInstance'
 import { commonParse, userTaskParse } from '../../common/parseElement'
-import { message } from 'ant-design-vue'
+import { message,Modal } from 'ant-design-vue'
 export default {
   components: {
     taskListener,
@@ -179,14 +197,6 @@ export default {
   },
   mixins: [mixinPanel,mixinExecutionListener],
   props: {
-    showInitiator:{
-      type:Boolean,
-      default: () => true
-    },
-    initiator:{
-      type:Object,
-      default: () => {}
-    },
     users: {
       type: Array,
       required: true
@@ -207,6 +217,14 @@ export default {
       type:Array,
       default: ()=> []
     },
+    candidateUserDataSource: {
+      type:Array,
+      default: ()=> []
+    },
+    candidateGroupDataSource: {
+      type:Array,
+      default: ()=> []
+    },
   },
   data() {
     return {
@@ -215,7 +233,8 @@ export default {
       userTypeOptions: [
         { label: '指定人员', value: 'assignee' },
         { label: '候选人员', value: 'candidateUsers' },
-        { label: '候选组', value: 'candidateGroups' }
+        { label: '候选组', value: 'candidateGroups' },
+        { label: '流程发起人', value: 'initiator' }
       ],
       dialogName: '',
       taskListenerLength: 0,
@@ -230,7 +249,7 @@ export default {
         dataType: "fixed",
         assignee: undefined,
         candidateUsers: [],
-        candidateGroups: undefined,
+        candidateGroups: [],
         multiInstance: undefined,
         async: false,
         priority: undefined,
@@ -293,14 +312,6 @@ export default {
           trigger: 'change'
         }]
       },
-
-      modeOptions: [{
-        "label": "固定",
-        "value": "fixed"
-      }, {
-        "label": "动态",
-        "value": "dynamic"
-      }],
       scriptTypeOptions: [{
         "label": "外部资源",
         "value": "outside"
@@ -315,7 +326,7 @@ export default {
 
   },
   watch: {
-    'formData.userType': function(val, oldVal) {
+    'formData.userType': function(val,oldVal) {
       if (oldVal) {
         const types = ['assignee', 'candidateUsers', 'candidateGroups']
         types.forEach(type => {
@@ -323,13 +334,28 @@ export default {
           delete this.formData[type]
         })
       }
+      this.updateProperties({ 'flowable:userType': val })
+    },
+    'formData.dataType': function(val) {
+      if (this.formData.userType === 'initiator') {
+        delete this.element.businessObject.$attrs[`flowable:dataType`]
+        return
+      }
+      this.updateProperties({ 'flowable:dataType': val })
     },
     'formData.assignee': function(val) {
-      if (this.formData.userType !== 'assignee') {
+      const types = ['assignee', 'initiator']
+      if (types.indexOf(this.formData.userType) === -1) {
         delete this.element.businessObject.$attrs[`flowable:assignee`]
         return
       }
-      this.updateProperties({ 'flowable:assignee': val })
+      if (this.formData.userType === 'initiator'){
+        this.formData.assignee = '${INITIATOR}'
+        this.updateProperties({ 'flowable:assignee': '${INITIATOR}' })
+      } else {
+        this.updateProperties({ 'flowable:assignee': val })
+      }
+
     },
     'formData.candidateUsers': function(val) {
       if (this.formData.userType !== 'candidateUsers') {
@@ -352,6 +378,10 @@ export default {
     'formData.dueDate': function(val) {
       if (val === '') val = null
       this.updateProperties({ 'flowable:dueDate': val })
+    },
+    'formData.followUpDate': function(val) {
+      if (val === '') val = null
+      this.updateProperties({ 'flowable:followUpDate': val })
     },
     'formData.formKey': function(val) {
       if (val === '') val = null
@@ -406,6 +436,32 @@ export default {
     this.computedHasMultiInstance()
   },
   methods: {
+    handleClearAssignee(){
+
+      let that = this;
+      if (this.formData.userType === 'assignee' && (this.formData.assignee === undefined || this.formData.assignee.trim() === '')){
+        return
+      } else if (this.formData.userType === 'candidateUsers'&& (this.formData.candidateUsers === undefined || this.formData.candidateUsers?.length ===0)){
+        return
+      } else if (this.formData.userType === 'candidateGroups'&& (this.formData.candidateGroups === undefined || this.formData.candidateGroups?.length === 0)){
+        return
+      }
+      Modal.confirm({
+        title: '是否需要清除原来的数据?',
+        content: '如果需要将会清除已经分配的信息',
+        okText:'需要',
+        cancelText:'不需要',
+        onOk() {
+          const types = ['assignee', 'candidateUsers', 'candidateGroups']
+          types.forEach(type => {
+            delete that.element.businessObject.$attrs[`flowable:${type}`]
+            that.formData[type] = undefined
+          })
+        },
+        onCancel() {},
+      });
+
+    },
     handleClearMultiInstance(){
       this.$refs.multiInstance.clear();
     },
@@ -417,7 +473,6 @@ export default {
     },
     handleTaskListener(){
       var flag = this.$refs.taskListener.closeDialog();
-      console.log("xxxxxx",flag)
       if (flag){
         this.taskListenerVisible = false;
       } else {
@@ -433,6 +488,12 @@ export default {
         this.hasMultiInstance = true
       } else {
         this.hasMultiInstance = false
+      }
+    },
+    handleUserTypeChange(){
+      if (this.formData.userType === 'initiator'){
+        this.formData.assignee = '${INITIATOR}'
+        this.updateProperties({ 'flowable:assignee': '${INITIATOR}' })
       }
     }
   }

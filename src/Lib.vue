@@ -43,7 +43,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 .workflow-bpmn-modeler {
   height: 100%;
   margin: 0;

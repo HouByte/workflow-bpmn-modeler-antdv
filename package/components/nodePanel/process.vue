@@ -3,10 +3,16 @@
 
     <a-form-model ref="form" :model="formData" :rules="rules" :label-col="{ span: 6,offset: 0 }" :wrapper-col="{ span: 16,offset: 1}" layout="horizontal">
       <a-form-model-item label="流程分类" prop="category" v-if="!filter('category')">
-        <a-select v-model="formData.category" placeholder="请选择流程分类" allow-clear :style="{width: '100%'}">
-          <a-select-option v-for="(item, index) in categories" :key="index" :value="item.id"
-                           :disabled="item.disabled">{{item.name}}</a-select-option>
-        </a-select>
+        <a-tree-select
+            v-model="formData.category"
+            style="width: 100%"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            :tree-data="categories"
+            placeholder="请选择流程分类"
+            :replaceFields="categoriesFields"
+            tree-default-expand-all
+        >
+        </a-tree-select>
       </a-form-model-item>
       <a-form-model-item label="流程标识" prop="id">
         <a-input v-model="formData.id" placeholder="请输入流程标识" :style="{width: '100%'}" allow-clear></a-input>
@@ -86,6 +92,19 @@ export default {
     signal
   },
   mixins: [mixinPanel, mixinExecutionListener],
+  props:{
+    categoriesFields:{
+      type:Object,
+      default :()=>{
+        return {
+          children:'children',
+          title:'name',
+          key:'id',
+          value: 'id'
+        }
+      }
+    }
+  },
   data() {
     return {
       signalVisible:false,
@@ -116,14 +135,7 @@ export default {
           trigger: 'blur'
         }],
         documentation: [],
-      },
-      categoryOptions: [{
-        "label": "请假",
-        "value": 1
-      }, {
-        "label": "报销",
-        "value": 2
-      }],
+      }
     }
 
 
@@ -139,7 +151,6 @@ export default {
   },
   created() {
     this.formData = commonParse(this.element)
-    console.log(this.formData)
   },
   methods: {
     computedSignalLength() {

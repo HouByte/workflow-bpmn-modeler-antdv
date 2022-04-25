@@ -142,7 +142,6 @@ export default {
           }) ?? []
         }
       }) ?? []
-    console.log(this.formData.executionListener)
   },
   methods: {
     onDelete(index){

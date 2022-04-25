@@ -3,16 +3,18 @@
     <bpmn-modeler
         ref="refNode"
         :xml="xml"
+        :is-view="false"
+        :categories="categories"
+        :categories-fields="categoriesFields"
         :users="users"
         :groups="groups"
-        :categories="categories"
-        :is-view="false"
+        :candidate-user-data-source="candidateUserDataSource"
+        :candidate-group-data-source="candidateGroupDataSource"
+
 
         :paletteToolShow="paletteToolShow"
         :panelFilters="panelFilters"
         :paletteFilters="paletteFilters"
-        :show-initiator="showInitiator"
-        :initiator="initiator"
         :associate-form-config="associateFormConfig"
         :associate-form-data-options="associateFormDataOptions"
         :assignee-data-source="assigneeDataSource"
@@ -49,8 +51,18 @@
 </template>
 
 <script>
+//需要依赖ant-design-vue和less
+/**
+ * package包引入
+ * 内部依赖版本：
+ * "bpmn-js": "^7.2.1",
+ * "vue-codemirror": "^4.0.6"
+ */
 import bpmnModeler from '../package/index'
-
+//1.0.1 版本引用
+//import bpmnModeler from 'workflow-bpmn-modeler-antdv/package/';
+//1.0.2 版本引用
+//import bpmnModeler from 'workflow-bpmn-modeler-antdv';
 export default {
   components: {
     bpmnModeler
@@ -58,27 +70,40 @@ export default {
   data() {
     return {
       xml: '', // 后端查询到的xml
+      //指定或候选人
       users: [
         { name: '张三', id: 'zhangsan' },
         { name: '李四', id: 'lisi' },
         { name: '王五', id: 'wangwu' }
       ],
+      //候选组
       groups: [
         { name: 'web组', id: 'web' },
         { name: 'java组', id: 'java' },
         { name: 'python组', id: 'python' }
       ],
+      //分类
       categories: [
-        { name: 'OA', id: 'oa' },
+        { name: 'OA', id: 'oa', children: [{ name: '请假', id: 'leave' }] },
         { name: '财务', id: 'finance' }
       ],
+      //分类树状结构与具体转换
+      //此结构是默认结构，如果数据结构一致则无需单独配置
+      categoriesFields:{
+        children:'children',
+        title:'name',
+        key:'id',
+        value: 'id'
+      },
       //过滤面板参数，参数见文档
       panelFilters: [],
       //panelFilters: ['category','message'],
-      //组件栏过滤，过滤参数见文档
+      //左侧操作组件栏过滤，过滤参数见文档
       //paletteFilters:['space-tool','create.start-event','create.task'],
-      paletteFilters:[],
-      paletteToolShow:true,//设置false组件的操作栏将被隐藏
+      paletteFilters: [],
+      //左侧操作组件栏，行为组件是否显示，设置false组件的操作栏将被隐藏
+      paletteToolShow: true,
+      //头部右侧操作栏显示内容配置
       rightActionConfig: {
         'showCode': {
           'show': true,
@@ -101,27 +126,37 @@ export default {
           'label': '保存'
         }
       },
-      showInitiator:true,
-      initiator:{
-        label: "流程发起人",
-        value: "${INITIATOR}"
-      },
-      associateFormConfig:{
-        enable:true, //此项为false，后设置两项均无效
+      /**
+       * 关联表单配置
+       */
+      associateFormConfig: {
+        enable: true, //此项为false，显示表单标识输入框，后两项设置两项均无效
         isPreview: true,
-        isCreate: true,
+        isCreate: true
       },
+      //关联表单动态表达式数据源
       associateFormDataOptions: [],
-      assigneeDataSource: ["#{approval}","${approverId}","${INITIATOR}"],
-      dueDateDataSource:  ["${dueDate}"],
-      followUpDateDataSource: ["${followUpDate}"],
-      initiatorDataSource: ["initiator"],
+      //分配指定人动态表达式数据源
+      assigneeDataSource: ['#{approval}', '${approverId}', '${INITIATOR}'],
+      //分配候选人动态表达式数据源
+      candidateUserDataSource: ['#{approval}', '#{app}'],
+      //分配候选组动态表达式数据源
+      candidateGroupDataSource: ['#{approval}', '#{app}'],
+      //过期时间动态表达式数据源
+      dueDateDataSource: ['${dueDate}'],
+      //观察时间动态表达式数据源
+      followUpDateDataSource: ['${followUpDate}'],
+      //开始节点发起人动态表达式数据源
+      initiatorDataSource: ['initiator'],
+      //跳过表达式动态表达式数据源
       skipExpressionDataSource: [],
-      conditionExpressionDataSource: ['${approve}','${!approve}'],
+      //跳转表达式动态表达式数据源
+      conditionExpressionDataSource: ['${approve}', '${!approve}'],
 
+      //自己业务数据
       //关联表单扩展，用于接入flowable动态表单或其他自定义动态表单
       formShowVisible: false,
-      formCreateVisible:false
+      formCreateVisible: false
     }
   },
   mounted() {
@@ -139,19 +174,19 @@ export default {
     saveModeler(data) {
       console.log(data)
     },
-    showAssociateForm(formKey){
+    showAssociateForm(formKey) {
       console.log(formKey)
-      this.formShowVisible = true;
+      this.formShowVisible = true
     },
-    createAssociateForm(){
-      console.log("create form")
-      this.formCreateVisible = true;
+    createAssociateForm() {
+      console.log('create form')
+      this.formCreateVisible = true
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 html, body, #app {
   height: 100%;
   margin: 0;

@@ -12,34 +12,34 @@
                 :beforeUpload="openBpmn"
             >
               <a-tooltip effect="dark" title="打开" placement="bottom">
-                <a-button icon="el-icon-folder-opened" >
+                <a-button >
                   <i class="iconfont icon-file-open"></i>
                 </a-button>
               </a-tooltip>
             </a-upload>
 
             <a-tooltip effect="dark" title="新建" placement="bottom">
-              <a-button icon="el-icon-circle-plus" @click="newDiagram">
+              <a-button  @click="newDiagram">
                 <i class="iconfont icon-add"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="自适应屏幕" placement="bottom">
-              <a-button icon="el-icon-rank" @click="fitViewport" >
+              <a-button  @click="fitViewport" >
                 <i class="iconfont icon-browse"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="放大" placement="bottom">
-              <a-button icon="el-icon-zoom-in" @click="zoomViewport(true)" >
+              <a-button  @click="zoomViewport(true)" >
                 <i class="iconfont icon-zoom-out"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="缩小" placement="bottom">
-              <a-button icon="el-icon-zoom-out" @click="zoomViewport(false)" >
+              <a-button  @click="zoomViewport(false)" >
                 <i class="iconfont icon-zoom-in"></i>
               </a-button>
             </a-tooltip>
             <a-tooltip effect="dark" title="后退" placement="bottom">
-              <a-button icon="el-icon-back" @click="modeler.get('commandStack').undo()" >
+              <a-button  @click="modeler.get('commandStack').undo()" >
                 <i class="iconfont icon-left"></i>
               </a-button>
             </a-tooltip>
@@ -72,26 +72,46 @@
         <a-layout-content style="padding: 0;margin-top: 10px;">
           <div ref="canvas" class="canvas" />
         </a-layout-content>
-        <a-layout-sider style="background: #fff;min-width: 400px;">
-          <panel v-if="modeler"
-                 :filters="panelFilters"
-                 :modeler="modeler"
-                 :users="users"
-                 :groups="groups"
-                 :categories="categories"
-                 :show-initiator="showInitiator"
-                 :initiator="initiator"
-                 :associate-form-config="associateFormConfig"
-                 :associate-form-data-options="associateFormDataOptions"
-                 :assignee-data-source="assigneeDataSource"
-                 :due-date-data-source="dueDateDataSource"
-                 :follow-up-date-data-source="followUpDateDataSource"
-                 :initiator-data-source="initiatorDataSource"
-                 :skip-expression-data-source="skipExpressionDataSource"
-                 :condition-expression-data-source="conditionExpressionDataSource"
-                 @showForm="showAssociateForm"
-                 @createForm="createAssociateForm"
-          />
+        <a-layout-sider class="sider" style="background: #fff; min-width: 40px; width: 40px;max-width: 40px;border-left: 1px solid #eeeeee;box-shadow: 0 0 8px #cccccc;">
+          <div style="width: 100%;text-align: center" @click="panelVisible = true">
+            <i class="iconfont icon-left-graph" style="font-size: 32px" v-if="panelExist"></i>
+          </div>
+
+          <a-drawer
+              width="400px"
+              placement="right"
+              :closable="false"
+              :visible="panelVisible && panelExist"
+              :get-container="false"
+              :wrap-style="{ position: 'absolute' }"
+          >
+            <template slot="title">
+              <i class="iconfont icon-right-graph" style="font-size: 32px" @click="panelVisible = false"></i><span>{{panelTitle}}</span>
+            </template>
+            <panel v-if="modeler"
+                   ref="panel"
+                   :filters="panelFilters"
+                   :modeler="modeler"
+                   :users="users"
+                   :groups="groups"
+                   :categories="categories"
+                   :categories-fields="categoriesFields"
+                   :associate-form-config="associateFormConfig"
+                   :associate-form-data-options="associateFormDataOptions"
+                   :assignee-data-source="assigneeDataSource"
+                   :due-date-data-source="dueDateDataSource"
+                   :follow-up-date-data-source="followUpDateDataSource"
+                   :initiator-data-source="initiatorDataSource"
+                   :skip-expression-data-source="skipExpressionDataSource"
+                   :condition-expression-data-source="conditionExpressionDataSource"
+                   :candidate-user-data-source="candidateUserDataSource"
+                   :candidate-group-data-source="candidateGroupDataSource"
+                   @showForm="showAssociateForm"
+                   @createForm="createAssociateForm"
+                   @change="handlePanelChange"
+            />
+          </a-drawer>
+
         </a-layout-sider>
       </a-layout>
     </a-layout>
@@ -127,12 +147,16 @@ import 'codemirror/theme/rubyblue.css'
 import 'codemirror/mode/xml/xml.js'
 import { message } from 'ant-design-vue'
 
+const nodePanelFilters = ['子流程','调用活动']
 export default {
   name: 'WorkflowBpmnModeler',
   components: {
     panel,codemirror
   },
   props: {
+    categoriesFields:{
+      type:Object
+    },
     //过滤面板参数
     panelFilters: {
       type: Array
@@ -193,19 +217,6 @@ export default {
       type: Boolean,
       default: false
     },
-    showInitiator:{
-      type:Boolean,
-      default: () => true
-    },
-    initiator:{
-      type:Object,
-      default: () => {
-        return {
-          label: "流程发起人",
-          value: "${INITIATOR}"
-        }
-      }
-    },
     associateFormConfig:{
       type:Object
     },
@@ -236,10 +247,21 @@ export default {
     conditionExpressionDataSource: {
       type: Array,
       default: () => ['${approve}','${!approve}']
-    }
+    },
+    candidateUserDataSource: {
+      type:Array,
+      default: ()=> []
+    },
+    candidateGroupDataSource: {
+      type:Array,
+      default: ()=> []
+    },
   },
   data() {
     return {
+      panelTitle:'',
+      panelVisible:true,
+      panelExist:false,
       modeler: null,
       taskList: [],
       zoom: 1,
@@ -291,6 +313,20 @@ export default {
     }
   },
   methods: {
+    handlePanelChange(title){
+      if (title.trim() === ''){
+        this.panelExist = false
+      } else {
+        if (nodePanelFilters.indexOf(title.trim()) === -1){
+          this.panelExist = true
+        } else {
+          this.panelExist = false
+        }
+
+      }
+      this.panelTitle = title
+
+    },
     newDiagram() {
       this.createNewDiagram(getInitStr())
     },
@@ -523,7 +559,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 // Font class
 @import "./icon/iconfont.css";
 /*左边工具栏以及编辑节点的样式*/
@@ -556,13 +592,10 @@ html,body,#app{
     position: absolute;
     right: 0;
     top: 50px;
-    width: 400px;
+    //width: 400px;
   }
   .load {
     margin-right: 10px;
-  }
-  .el-form-item__label{
-    font-size: 13px;
   }
 
   .djs-palette{
@@ -575,56 +608,16 @@ html,body,#app{
     min-height: 650px;
   }
 
-  // .highlight.djs-shape .djs-visual > :nth-child(1) {
-  //   fill: green !important;
-  //   stroke: green !important;
-  //   fill-opacity: 0.2 !important;
-  // }
-  // .highlight.djs-shape .djs-visual > :nth-child(2) {
-  //   fill: green !important;
-  // }
-  // .highlight.djs-shape .djs-visual > path {
-  //   fill: green !important;
-  //   fill-opacity: 0.2 !important;
-  //   stroke: green !important;
-  // }
-  // .highlight.djs-connection > .djs-visual > path {
-  //   stroke: green !important;
-  // }
-  // // .djs-connection > .djs-visual > path {
-  // //   stroke: orange !important;
-  // //   stroke-dasharray: 4px !important;
-  // //   fill-opacity: 0.2 !important;
-  // // }
-  // // .djs-shape .djs-visual > :nth-child(1) {
-  // //   fill: orange !important;
-  // //   stroke: orange !important;
-  // //   stroke-dasharray: 4px !important;
-  // //   fill-opacity: 0.2 !important;
-  // // }
-  // .highlight-todo.djs-connection > .djs-visual > path {
-  //   stroke: orange !important;
-  //   stroke-dasharray: 4px !important;
-  //   fill-opacity: 0.2 !important;
-  // }
-  // .highlight-todo.djs-shape .djs-visual > :nth-child(1) {
-  //   fill: orange !important;
-  //   stroke: orange !important;
-  //   stroke-dasharray: 4px !important;
-  //   fill-opacity: 0.2 !important;
-  // }
-  // .overlays-div {
-  //   font-size: 10px;
-  //   color: red;
-  //   width: 100px;
-  //   top: -20px !important;
-  // }
 }
-</style>
-
-<style lang="less" scoped>
+/deep/ .ant-layout-sider:hover{
+  background: #0A97CE25 !important;
+}
 /deep/ .CodeMirror {
   border: 1px solid #eee;
   height: 900px !important;
+}
+
+/deep/ .djs-container {
+  background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMTBoNDBNMTAgMHY0ME0wIDIwaDQwTTIwIDB2NDBNMCAzMGg0ME0zMCAwdjQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlMGUwZTAiIG9wYWNpdHk9Ii4yIi8+PHBhdGggZD0iTTQwIDBIMHY0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTBlMGUwIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+) repeat !important;
 }
 </style>

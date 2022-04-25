@@ -92,7 +92,6 @@ export default {
   methods: {
     handleId(row){
       var toRepeat = []
-      console.log(toRepeat)
       this.formData.signal.forEach(item=>{
         if (toRepeat.indexOf(row.id) !== -1){
           row.id=undefined;
@@ -123,8 +122,6 @@ export default {
     updateElement() {
       let signalElements = this.getSignalElementIds()
       this.formData.signal.forEach(item => {
-
-        console.log(signalElements)
         var toRepeat = []
         if (toRepeat.indexOf(item.id)=== -1 && signalElements.indexOf(item.id) === -1){
           // const signalRef = this.modeler.get('moddle').create("bpmn:Signal", item);

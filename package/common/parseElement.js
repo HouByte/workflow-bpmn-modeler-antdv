@@ -45,8 +45,6 @@ export function userTaskParse(obj) {
     } else if (key === 'candidateGroups') {
       obj.userType = 'candidateGroups'
       obj[key] = obj[key]?.split(',') || []
-    } else if (key === 'assignee') {
-      obj.userType = 'assignee'
     }
   }
   return obj

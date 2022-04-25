@@ -103,8 +103,6 @@ export default {
     updateElement() {
       let messageElements = this.getMessageElementIds()
       this.formData.messages.forEach(item => {
-
-        console.log(messageElements,item)
         var toRepeat = []
         if (toRepeat.indexOf(item.id)=== -1 && messageElements.indexOf(item.id) === -1){
           const messageRef = this.modeler.get('moddle').create("bpmn:Message",item);
@@ -124,7 +122,6 @@ export default {
           flag = false;
         }
       })
-      console.log(flag)
       if (flag){
         this.updateElement()
       }

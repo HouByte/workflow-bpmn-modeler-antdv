@@ -1,6 +1,6 @@
 <template>
   <div ref="propertyPanel" class="property-panel" v-show="getComponent">
-    <div v-if="nodeName" class="node-name">{{ nodeName }}</div>
+    <div v-if="nodeName" style="display: none">{{ nodeName }}</div>
     <component
       :is="getComponent"
       v-if="element"
@@ -10,8 +10,7 @@
       :users="users"
       :groups="groups"
       :categories="categories"
-      :show-initiator="showInitiator"
-      :initiator="initiator"
+      :categories-fields="categoriesFields"
       :associate-form-config="associateFormConfig"
       :associate-form-data-options="associateFormDataOptions"
       :assignee-data-source="assigneeDataSource"
@@ -20,6 +19,8 @@
       :initiator-data-source="initiatorDataSource"
       :skip-expression-data-source="skipExpressionDataSource"
       :condition-expression-data-source="conditionExpressionDataSource"
+      :candidate-user-data-source="candidateUserDataSource"
+      :candidate-group-data-source="candidateGroupDataSource"
       @showForm="showAssociateForm"
       @createForm="createAssociateForm"
     />
@@ -38,16 +39,11 @@ export default {
   name: 'PropertyPanel',
   components: { processPanel, taskPanel, startEndPanel, sequenceFlowPanel, gatewayPanel },
   props: {
+    categoriesFields:{
+      type:Object
+    },
     filters: {
       type: Array
-    },
-    showInitiator:{
-      type:Boolean,
-      default: () => true
-    },
-    initiator:{
-      type:Object,
-      default: () => {}
     },
     associateFormConfig:{
       type:Object
@@ -95,7 +91,15 @@ export default {
     conditionExpressionDataSource: {
       type: Array,
       default: () => []
-    }
+    },
+    candidateUserDataSource: {
+      type:Array,
+      default: ()=> []
+    },
+    candidateGroupDataSource: {
+      type:Array,
+      default: ()=> []
+    },
   },
   data() {
     return {
@@ -109,7 +113,7 @@ export default {
         { value: 'manager', label: '经理' },
         { value: 'personnel', label: '人事' },
         { value: 'charge', label: '主管' }
-      ]
+      ],
     }
   },
   computed: {
@@ -154,7 +158,9 @@ export default {
         const type = bizObj?.eventDefinitions
           ? bizObj.eventDefinitions[0].$type
           : bizObj.$type
-        return NodeName[type] || type
+        var nodeTitle = NodeName[type] || type
+        this.$emit("change",nodeTitle)
+        return nodeTitle
       }
       return ''
     }
@@ -174,7 +180,6 @@ export default {
       })
       this.modeler.on('element.click', e => {
         const { element } = e
-        console.log(element)
         if (element.type === 'bpmn:Process') {
           this.element = element
         }
@@ -187,6 +192,7 @@ export default {
           this.$nextTick().then(() => {
             this.element = element
           })
+        } else {
         }
       })
     },
@@ -200,7 +206,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 .property-panel {
   padding: 20px 20px;
   // reset element css

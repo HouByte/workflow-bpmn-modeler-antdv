@@ -37,25 +37,30 @@
     "url": "https://github.com/Vincent-Vic/workflow-bpmn-modeler-antdv/issues"
   },
   "dependencies": {
-    "ant-design-vue": "^1.7.6",
     "bpmn-js": "^7.2.1",
-    "viser-vue": "^2.4.8",
-    "vue": "^2.6.10",
     "vue-codemirror": "^4.0.6"
   },
   "devDependencies": {
+    "vue": "^2.6.10",
+    "ant-design-vue": "^1.7.6",
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-service": "^4.4.6",
     "cross-env": "^7.0.2",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
-    "sass": "^1.26.10",
-    "sass-loader": "^9.0.2",
     "vue-template-compiler": "^2.6.11"
   },
   "files": [
     "dist",
-    "package",
+    "package/common",
+    "package/components",
+    "package/icon",
+    "package/flowable",
+    "package/lang",
+    "package/BpmData.js",
+    "package/index.vue",
+    "package/PropertyPanel.vue",
+    "package/index.js",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
