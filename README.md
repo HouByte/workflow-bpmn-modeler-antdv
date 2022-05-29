@@ -50,6 +50,23 @@ import bpmnModeler from 'workflow-bpmn-modeler-antdv/package/';
 import bpmnModeler from 'workflow-bpmn-modeler-antdv';
 ```
 
+## 注意事项
+
+在部分系统中存在侧边栏层级覆盖本身系统组件，可参考设置层级
+```css
+/deep/ .ant-layout-sider{
+  z-index: 2;
+}
+```
+
+组件使用AntdvUI，但UI需要自行配置,如果版本缺少组件根据报错自行加入全局
+例如：
+```javascript
+import { FormModel } from 'ant-design-vue';
+
+Vue.use(FormModel);
+```
+
 > 文档建议参考代码仓库为准
 ## 使用说明 👣
 ### 简单例子 👣

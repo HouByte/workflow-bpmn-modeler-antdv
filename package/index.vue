@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-containers" :style="'height: '+height+';'" :class="{ 'view-mode': isView }">
+  <div class="flow-containers" style="height: 100%" :class="{ 'view-mode': isView }">
     <a-layout style="height: 100%">
       <a-layout-header theme="light" style="border-bottom: 1px solid rgb(218 218 218);height: auto;background-color:#fff;">
         <div style="display: flex; padding: 5px 0px; justify-content: space-between;">
@@ -154,10 +154,6 @@ export default {
     panel,codemirror
   },
   props: {
-    height:{
-      type:String,
-      default:()=>"100%"
-    },
     categoriesFields:{
       type:Object
     },
