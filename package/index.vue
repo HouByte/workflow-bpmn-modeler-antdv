@@ -568,6 +568,12 @@ export default {
 @import "~bpmn-js/dist/assets/bpmn-font/css/bpmn-codes.css";
 @import "~bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 
+.view-mode {
+  .ant-layout-header, .ant-layout-sider, /deep/.djs-palette, .bjs-powered-by {
+    display: none;
+  }
+}
+
 html,body,#app{
   height:100%
 }

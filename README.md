@@ -50,6 +50,11 @@ import bpmnModeler from 'workflow-bpmn-modeler-antdv/package/';
 import bpmnModeler from 'workflow-bpmn-modeler-antdv';
 ```
 
+1.0.3 废弃
+
+1.0.4 更新说明
+is-view 无效修复
+
 ## 注意事项
 
 在部分系统中存在侧边栏层级覆盖本身系统组件，可参考设置层级
