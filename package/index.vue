@@ -293,18 +293,42 @@ export default {
     }
   },
   mounted() {
-    // 生成实例
-    this.modeler = new Modeler({
-      container: this.$refs.canvas,
-      additionalModules: [
-        {
-          translate: ['value', customTranslate]
+    console.log()
+    if(this.isView){
+      // 生成实例
+      this.modeler = new Modeler({
+        container: this.$refs.canvas,
+        additionalModules: [
+          {
+            translate: ['value', customTranslate],
+            paletteProvider:["value",''],//禁用/清空左侧工具栏
+            labelEditingProvider:["value",''],//禁用节点编辑
+            contextPadProvider:["value",''],//禁用图形菜单
+            bendpoints:["value",{}],//禁用连线拖动
+            zoomScroll:["value",''],//禁用滚动
+            moveCanvas:['value',''],//禁用拖动整个流程图
+            move:['value','']//禁用单个图形拖动
+          }
+        ],
+        moddleExtensions: {
+          flowable: flowableModdle
         }
-      ],
-      moddleExtensions: {
-        flowable: flowableModdle
-      }
-    })
+      })
+    } else {
+      // 生成实例
+      this.modeler = new Modeler({
+        container: this.$refs.canvas,
+        additionalModules: [
+          {
+            translate: ['value', customTranslate]
+          }
+        ],
+        moddleExtensions: {
+          flowable: flowableModdle
+        }
+      })
+    }
+
     // 新增流程定义
     if (!this.xml) {
       this.newDiagram()
@@ -374,6 +398,9 @@ export default {
         // 获取 bpmn 设计器实例
         const canvas = this.$refs.canvas
         const djsPalette = canvas.children[0].children[1].children[4]
+        if(!djsPalette){
+          return
+        }
         const djsPalStyle = {
           width: '130px',
           padding: '5px',
@@ -569,7 +596,7 @@ export default {
 @import "~bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 
 .view-mode {
-  .ant-layout-header, .ant-layout-sider, /deep/.djs-palette, .bjs-powered-by {
+  .ant-layout-header, .ant-layout-sider, /deep/.djs-palette, /deep/.bjs-powered-by {
     display: none;
   }
 }

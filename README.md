@@ -50,9 +50,9 @@ import bpmnModeler from 'workflow-bpmn-modeler-antdv/package/';
 import bpmnModeler from 'workflow-bpmn-modeler-antdv';
 ```
 
-1.0.3 废弃
+1.0.3,1.0.4 废弃
 
-1.0.4 更新说明
+1.0.5 更新说明
 is-view 无效修复
 
 ## 注意事项
