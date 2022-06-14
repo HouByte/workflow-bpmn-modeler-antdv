@@ -113,7 +113,7 @@ export default {
       messages:[],
       signalLength: 0,
       formData: {
-        category: undefined,
+        processCategory: undefined,
         id: undefined,
         name: undefined,
         documentation: undefined,
