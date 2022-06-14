@@ -2,7 +2,7 @@
   <div>
 
     <a-form-model ref="form" :model="formData" :rules="rules" :label-col="{ span: 6,offset: 0 }" :wrapper-col="{ span: 16,offset: 1}" layout="horizontal">
-      <a-form-model-item label="流程分类" prop="category" v-if="!filter('category')">
+      <a-form-model-item label="流程分类" prop="processCategory" v-if="!filter('category')">
         <a-tree-select
             v-model="formData.processCategory"
             style="width: 100%"
@@ -119,7 +119,7 @@ export default {
         documentation: undefined,
       },
       rules: {
-        category: [{
+        processC: [{
           required: true,
           message: '请选择流程分类',
           trigger: 'change'

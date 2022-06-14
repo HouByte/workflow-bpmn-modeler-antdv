@@ -47,6 +47,21 @@
       </template>
       【创建表单】本功能为外部扩展，非组件内部弹窗,用于接入flowable动态表单或其他自定义动态表单....
     </a-modal>
+
+    <a-modal v-model:visible="formSaveVisible" title="保存表单" width="1000px">
+      <template #footer>
+      </template>
+
+      <div style="display: flex;flex-direction: column">
+        <div>
+          【ID:{{result.id}}】【流程名称:{{result.name}}】【分类:{{result.category}}】
+        </div>
+        <div v-html="result.svg">
+
+        </div>
+      </div>
+
+    </a-modal>
   </div>
 </template>
 
@@ -69,6 +84,13 @@ export default {
   },
   data() {
     return {
+      result:{
+        svg:"",
+        category:"",
+        name:"",
+        id:""
+      },
+      formSaveVisible:false,
       xml: '', // 后端查询到的xml
       //指定或候选人
       users: [
@@ -173,6 +195,13 @@ export default {
     },
     saveModeler(data) {
       console.log(data)
+      this.result = {
+        svg: data.svg,
+        id:data.process.id,
+        name:data.process.name,
+        category: data.process.category
+      }
+      this.formSaveVisible = true
     },
     showAssociateForm(formKey) {
       console.log(formKey)
