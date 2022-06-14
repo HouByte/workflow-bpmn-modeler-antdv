@@ -3,7 +3,7 @@
     <bpmn-modeler
         ref="refNode"
         :xml="xml"
-        :is-view="true"
+        :is-view="false"
         :categories="categories"
         :categories-fields="categoriesFields"
         :users="users"
